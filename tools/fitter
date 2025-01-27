@@ -1,0 +1,15 @@
+#!/bin/sh
+
+die () {
+	echo "E: $1"
+	exit 1
+}
+
+[ -e "$1" ] || die "Source file $1 not found"
+
+grep -qE '^#\$ DEVICE +f1500' "$1" && exec fit1500 "$@"
+grep -qE '^#\$ DEVICE +f1502' "$1" && exec fit1502 "$@"
+grep -qE '^#\$ DEVICE +f1504' "$1" && exec fit1504 "$@"
+grep -qE '^#\$ DEVICE +f1508' "$1" && exec fit1508 "$@"
+
+die "Cannot fit, unsupported device"

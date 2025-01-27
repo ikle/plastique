@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export LIBCUPL='C:\Wincupl\Shared\cupl.dl'
+
+exec wine C:/Wincupl/Shared/cupl.exe "$@"

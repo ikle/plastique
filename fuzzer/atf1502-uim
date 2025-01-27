@@ -1,0 +1,127 @@
+#!/usr/bin/perl
+
+use Data::Dumper;
+
+#
+# Returns map from jed config for single mux to column number
+#
+sub uim_make_umap ($) {
+	my ($cols) = @_;
+	my %umap;
+
+	for (my $i = 0; $i < $cols; ++$i) {
+		my $key = '';
+
+		for (my $j = 0; $j < $cols; ++$j) {
+			$key .= $j == $i ? '0' : '1';
+		}
+
+		$umap{$key} = $i;	# print "$key => $i\n";
+	}
+
+	return %umap;
+}
+
+#
+# Reads UIMs configuration
+#
+sub uim_read_jed ($$$) {
+	my ($cols, $rows, $name) = @_;
+	my %umap = uim_make_umap ($cols);
+	my %data;
+
+	open my $jed, '<', "$name.jed" or die "E: Cannot open $name.jed\n";
+
+	for my $line (<$jed>) {
+		if ($line =~ /L\d+\s([01]{5})\s*\*\s*NOTE Mux-(\d+) of block ([A-Z])/) {
+			my ($map, $mux, $lab) = ($1, $2, $3);
+
+			die "E: Mux $mux not in table\n" if $mux >= $rows;
+
+			$data{$lab}{$mux} = $umap{$map} if defined $umap{$map};
+		}
+	}
+
+	return \%data;
+}
+
+sub uim_alloc ($$) {
+	my ($cols, $rows) = @_;
+	my @row;
+	my @table;
+
+	for (my $i = 0; $i < $cols; ++$i) {
+		@row[$i] = '-';
+	}
+
+	for (my $i = 0; $i < $rows; ++$i) {
+		@table[$i] = [@row];
+	}
+
+	return \@table;
+}
+
+sub uim_save ($$) {
+	my ($table, $to) = @_;
+	my $rows = scalar @{$table};
+
+	for (my $i = 0; $i < $rows; ++$i) {
+		print $to join ("\t", @{$table->[$i]}) . "\n";
+	}
+}
+
+sub uim_report ($) {
+	my ($table) = @_;
+	my $rows = scalar @{$table};
+	my $cols = scalar @{$table->[0]};
+	my $fill;
+
+	print "\n"; uim_save ($table, *STDOUT);
+
+	for (my $i = 0; $i < $rows; ++$i) {
+		for (my $j = 0; $j < $cols; ++$j) {
+			++$fill if $table->[$i][$j] ne '-';
+		}
+	}
+
+	print "\npopulation = $fill / " . ($rows * $cols) . "\n";
+}
+
+#
+# Parses fitter report and updates UIM table
+#
+sub uim_read_fit ($$$) {
+	my ($table, $name, $jed) = @_;
+	my $lab;
+
+	open my $fit, '<', "$name.fit" or die "E: Cannot open $name.fit\n";
+
+	for my $line (<$fit>) {
+		if ($line =~ /: MUX (\d+)\s+Ref\s+\(([^)]+)/) {
+			my ($mux, $name, $i) = ($1, $2, undef);
+
+			$name = "F$1" if $name =~ /^[A-Z](\d+)fb$/;
+			$name = "P$1" if $name =~ /^[A-Z](\d+)p$/;
+
+			die "E: Mux $mux without LAB\n" unless defined $lab;
+
+			$i = $jed->{$lab}{$mux};
+
+			die "E: Mux $mux without column\n" unless defined $i;
+
+			$table->[$mux][$i] = $name;
+		}
+		elsif ($line =~ /^Multiplexer assignment for block ([A-Z])/) {
+			$lab = $1;
+		}
+	}
+}
+
+my $name = 'led32ser';
+
+my $jed = uim_read_jed (5, 40, $name);		# print Dumper $jed;
+my $uim = uim_alloc    (5, 40);			# print Dumper $uim;
+
+uim_read_fit ($uim, $name, $jed);		# print Dumper \$uim->[3];
+uim_report   ($uim);
+
