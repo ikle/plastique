@@ -84,7 +84,7 @@ sub uim_report ($) {
 		}
 	}
 
-	print "\npopulation = $fill / " . ($rows * $cols) . "\n";
+	print "\ncoverage = $fill / " . ($rows * $cols) . "\n";
 }
 
 #
