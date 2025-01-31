@@ -14,32 +14,7 @@
  * 1. Pattern with a string to replace with
  */
 
-struct pat {
-	size_t len;
-	char *name, *value;
-};
-
-static int pat_init (struct pat *o, const char *name, const char *value)
-{
-	o->len = strlen (name);
-
-	if ((o->name = strdup (name)) == NULL)
-		return 0;
-
-	if ((o->value = strdup (value)) != NULL)
-		goto no_value;
-
-	return 1;
-no_value:
-	free (o->name);
-	return 0;
-}
-
-static void pat_fini (struct pat *o)
-{
-	free (o->value);
-	free (o->name);
-}
+#include "pattern.h"
 
 /*
  * 2. Pattern substitution core
@@ -47,12 +22,12 @@ static void pat_fini (struct pat *o)
 
 struct patsub {
 	size_t count, size;	/* active patterns and available space	*/
-	struct pat *set;	/* sorted patterns			*/
+	struct pattern *set;	/* sorted patterns			*/
 	int sorted;		/* patterns sorted flag			*/
 
 	size_t N, space;	/* source string length and space	*/
 	const char **SA;	/* sorted array of non-empty suffixes	*/
-	const struct pat **M;	/* pattern marks for source positions	*/
+	const struct pattern **M; /* pattern marks for source positions	*/
 };
 
 void patsub_init (struct patsub *o)
@@ -76,14 +51,14 @@ void patsub_fini (struct patsub *o)
 	free (o->SA);
 
 	for (i = 0; i < o->count; ++i)
-		pat_fini (o->set + i);
+		pattern_fini (o->set + i);
 
 	free (o->set);
 }
 
 static int pat_cmp (const void *a, const void *b)
 {
-	const struct pat *l = a, *r = b;
+	const struct pattern *l = a, *r = b;
 
 	return strcmp (l->name, r->name);
 }
@@ -99,12 +74,12 @@ static void patsub_sort (struct patsub *o)
 
 static int key_cmp (const void *key, const void *b)
 {
-	const struct pat *p = b;
+	const struct pattern *p = b;
 
 	return strcmp (key, p->name);
 }
 
-static struct pat *patsub_find (struct patsub *o, const char *name)
+static struct pattern *patsub_find (struct patsub *o, const char *name)
 {
 	patsub_sort (o);
 
@@ -113,7 +88,7 @@ static struct pat *patsub_find (struct patsub *o, const char *name)
 
 static int patsub_resize (struct patsub *o)
 {
-	struct pat *p;
+	struct pattern *p;
 	const size_t next = o->size + 4;
 	const size_t have = o->size * sizeof (p[0]);
 	const size_t need = next    * sizeof (p[0]);
@@ -141,7 +116,7 @@ int patsub_add (struct patsub *o, const char *name, const char *value)
 	if (o->count >= o->size && !patsub_resize (o))
 		return 0;
 
-	if (!pat_init (o->set + o->count, name, value))
+	if (!pattern_init (o->set + o->count, name, value))
 		return 0;
 
 	++o->count;
@@ -151,12 +126,12 @@ int patsub_add (struct patsub *o, const char *name, const char *value)
 
 int patsub_del (struct patsub *o, const char *name)
 {
-	struct pat *p;
+	struct pattern *p;
 
 	if ((p = patsub_find (o, name)) == NULL)
 		return 0;
 
-	pat_fini (p);
+	pattern_fini (p);
 	--o->count;
 
 	memmove (p, p + 1, (o->set + o->count - (p + 1)) * sizeof (p[0]));
@@ -170,7 +145,7 @@ int patsub_del (struct patsub *o, const char *name)
 static int patsub_resize_marks (struct patsub *o)
 {
 	const char **SA;
-	const struct pat **M;	/* W: sizeof M[0] == sizeof SA[0] */
+	const struct pattern **M;  /* W: sizeof M[0] == sizeof SA[0] */
 
 	const size_t next = o->N;
 	const size_t have = o->space * sizeof (SA[0]);
@@ -196,7 +171,7 @@ static int patsub_resize_marks (struct patsub *o)
 
 static int cmp (const struct patsub *o, size_t p, size_t s)
 {
-	const struct pat *P = o->set + p;
+	const struct pattern *P = o->set + p;
 
 	return strncmp (P->name, o->SA[s], P->len);
 }
