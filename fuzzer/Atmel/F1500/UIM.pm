@@ -18,6 +18,7 @@ our @ISA = qw (Exporter);
 our @EXPORT = qw (
 	uim_read_jed
 	uim_alloc
+	uim_load
 	uim_report
 	uim_update
 );
@@ -88,6 +89,34 @@ sub uim_alloc ($$) {
 
 	for (my $i = 0; $i < $rows; ++$i) {
 		@table[$i] = [@row];
+	}
+
+	return \@table;
+}
+
+#
+# Loads UIM table from the specified CSV file. If the file cannot be
+# opened, returns an empty table.
+#
+sub uim_load ($$$) {
+	my ($cols, $rows, $name) = @_;
+	my @table;
+	my $i = 0;
+
+	open my $csv, '<', "$name.csv" or return uim_alloc ($cols, $rows);
+
+	for my $line (<$csv>) {
+		chomp $line;
+
+		die "E: Too many rows in $name.csv\n" if $i == $rows;
+
+		my @row = split (',', $line);
+
+		die "E: Too few filds in row $i of $name.csv\n"  if scalar @row < $cols;
+		die "E: Too many filds in row $i of $name.csv\n" if scalar @row > $cols;
+
+		@table[$i] = [@row];
+		++$i;
 	}
 
 	return \@table;
