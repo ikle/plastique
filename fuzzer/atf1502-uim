@@ -1,4 +1,4 @@
-#!/usr/bin/perl -I.
+#!/usr/bin/perl -Ilib
 #
 # Sample to test work with Atmel ATF1500 family UIMs
 #
