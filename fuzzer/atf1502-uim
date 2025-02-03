@@ -107,7 +107,7 @@ sub uim_report ($) {
 #
 # Parses fitter report and updates UIM table
 #
-sub uim_read_fit ($$$) {
+sub uim_update ($$$) {
 	my ($table, $name, $jed) = @_;
 	my $lab;
 
@@ -126,6 +126,11 @@ sub uim_read_fit ($$$) {
 
 			die "E: Mux $mux without column\n" unless defined $i;
 
+			my $old = $table->[$mux][$i];
+
+			die "E: Mapping conflict for mux $mux at $i column\n"
+			unless ($old eq '-' or $old eq $name);
+
 			$table->[$mux][$i] = $name;
 		}
 		elsif ($line =~ /^Multiplexer assignment for block ([A-Z])/) {
@@ -139,6 +144,6 @@ my $name = 'led32ser';
 my $jed = uim_read_jed (5, 40, $name);		# print Dumper $jed;
 my $uim = uim_alloc    (5, 40);			# print Dumper $uim;
 
-uim_read_fit ($uim, $name, $jed);		# print Dumper \$uim->[3];
-uim_report   ($uim);
+uim_update ($uim, $name, $jed);			# print Dumper \$uim->[3];
+uim_report ($uim);
 
