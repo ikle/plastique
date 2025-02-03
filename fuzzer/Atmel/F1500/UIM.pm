@@ -116,7 +116,7 @@ sub uim_report ($) {
 	my $cols = scalar @{$table->[0]};
 	my $fill;
 
-	print "\n"; uim_save ($table, *STDOUT);
+	uim_save ($table, *STDOUT);
 
 	for (my $i = 0; $i < $rows; ++$i) {
 		for (my $j = 0; $j < $cols; ++$j) {
