@@ -18,7 +18,6 @@ our @ISA = qw (Exporter);
 our @EXPORT = qw (
 	uim_read_jed
 	uim_alloc
-	uim_save
 	uim_report
 	uim_update
 );
@@ -95,18 +94,6 @@ sub uim_alloc ($$) {
 }
 
 #
-# Saves the UIM table to the specified file.
-#
-sub uim_save ($$) {
-	my ($table, $to) = @_;
-	my $rows = scalar @{$table};
-
-	for (my $i = 0; $i < $rows; ++$i) {
-		print $to join ("\t", @{$table->[$i]}) . "\n";
-	}
-}
-
-#
 # Generates and prints a report of the known UIM configuration and its
 # coverage.
 #
@@ -116,7 +103,9 @@ sub uim_report ($) {
 	my $cols = scalar @{$table->[0]};
 	my $fill;
 
-	uim_save ($table, *STDOUT);
+	for (my $i = 0; $i < $rows; ++$i) {
+		print join ("\t", @{$table->[$i]}) . "\n";
+	}
 
 	for (my $i = 0; $i < $rows; ++$i) {
 		for (my $j = 0; $j < $cols; ++$j) {
