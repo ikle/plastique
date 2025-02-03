@@ -19,6 +19,7 @@ our @EXPORT = qw (
 	uim_read_jed
 	uim_alloc
 	uim_load
+	uim_save
 	uim_report
 	uim_update
 );
@@ -120,6 +121,20 @@ sub uim_load ($$$) {
 	}
 
 	return \@table;
+}
+
+#
+# Saves the UIM table to the specified file.
+#
+sub uim_save ($$) {
+	my ($table, $name) = @_;
+	my $rows = scalar @{$table};
+
+	open my $csv, '>', "$name.csv" or die "E: Cannot write to $name.csv\n";
+
+	for (my $i = 0; $i < $rows; ++$i) {
+		print $csv join (',', @{$table->[$i]}) . "\n";
+	}
 }
 
 #

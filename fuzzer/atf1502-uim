@@ -17,4 +17,5 @@ my $uim = uim_load     (5, 40, 'db/atmel/f1502/uim');	# print Dumper $uim;
 
 uim_update ($uim, $name, $jed);				# print Dumper \$uim->[3];
 uim_report ($uim);
+uim_save   ($uim, 'db/atmel/f1502/uim');
 
