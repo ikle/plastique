@@ -113,8 +113,8 @@ sub uim_load ($$$) {
 
 		my @row = split (',', $line);
 
-		die "E: Too few filds in row $i of $name.csv\n"  if scalar @row < $cols;
-		die "E: Too many filds in row $i of $name.csv\n" if scalar @row > $cols;
+		die "E: Too few fields in row $i of $name.csv\n"  if scalar @row < $cols;
+		die "E: Too many fields in row $i of $name.csv\n" if scalar @row > $cols;
 
 		@table[$i] = [@row];
 		++$i;
