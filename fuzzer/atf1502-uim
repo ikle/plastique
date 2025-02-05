@@ -10,7 +10,8 @@
 use Atmel::F1500::UIM;
 use Data::Dumper;
 
-my $name = '../led32ser';
+#my $name = '../led32ser';
+my $name = 'test/atf1502-pt-0';
 
 my $jed = uim_read_jed (5, 40, $name);			# print Dumper $jed;
 my $uim = uim_load     (5, 40, 'db/atmel/f1502/uim');	# print Dumper $uim;

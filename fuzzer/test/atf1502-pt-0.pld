@@ -1,0 +1,85 @@
+Name      atf1502-pt-0;
+Partno    ATF1502;
+Revision  01;
+Date      Feb 2025;
+Designer  ikle;
+Company   None;
+Assembly  None;
+Location  Saint Petersburg;
+Device    f1502plcc44;
+
+Property Atmel {JTAG off};
+Property Atmel {pin_keep on};
+Property Atmel {logic_doubling on};
+Property Atmel {Foldback_Logic on};
+Property Atmel {Soft_Buffer    on};
+
+/*
+Pin [ 3,15,23,35] = Vcc;
+Pin [10,22,30,42] = GND;
+*/
+
+/* Input-only pins */
+
+Pin [44, 43, 1, 2] = [OE1, GCLK1, GCLR, OE2];
+
+/* Input/Output pins */
+
+Pin [4..9,   11..14, 16..21] = [P1..P16];	/* MC1..MC16	*/
+Pin [41..36, 34..31, 29..24] = [P17..P32];	/* MC17..MC32	*/
+
+/* MC Feedbacks */
+
+Pinnode	[601..632] = [F1..F32];			/* MC1..MC32	*/
+
+/* MC Foldbacks */
+
+Pinnode	[301..332] = ![N1..N32];		/* MC1..MC32	*/
+
+/* 32-bit shift register */
+
+F1.d = OE2;
+
+[F2..F32].d  = [F1..F31];
+[F1..F32].ck = GCLK1;
+
+/*
+ *  0. [F1..F32,P17..P22]			+ P32.oe = OE1
+ *  1. [F1..F32,P1..P6]
+ *  2. [F1..F32,P1..P4,OE1]
+ *  3. [F1..F32,P1..P4,GCLK1]
+ *  4. [P16,F2..F32,P1..P4,GCLK1]
+ *  5. [P16..P17,F3..F32,P1..P4,GCLK1]
+ *  6. [P16..P20,F8..F32,P1..P4,OE1,GCLK1]
+ *  7. [P16..P21,F10..F32,P1..P4,OE1,GCLK1]
+ *  8. [P16..P22,F12..F32,P1..P4,OE1,GCLK1]
+ *  9. [P16..P23,F14..F32,P1..P4,OE1,GCLK1]
+ * 10. [P16..P24,F16..F32,P1..P4,OE1,GCLK1]
+ * 11. [P16..P25,F18..F32,P1..P4,OE1,GCLK1]
+ * 12. [P16..P27,F22..F32,P1..P4,OE1,GCLK1]
+ * 13. [P16..P28,F24..F32,P1..P4,OE1,GCLK1]
+ * 14. [P16..P29,F26..F32,P1..P4,OE1,GCLK1]
+ * 15. [P16..P30,F28..F32,P1..P4,OE1,GCLK1]
+ * 16. [P16..P31,F30..F32,P1..P4,OE1,GCLK1]
+ * 17. [P2..P4,P16..P24,OE1,GCLK1]
+ * 18. [P1..P7,P16..P24,OE2,GCLR]
+ * 19. [P1..P9,P16..P24,OE2,GCLR]
+ * 20. [P1..P8,P16..P24,OE2,GCLR]
+ * 21. [P1..P11,P16..P24,GCLR]
+ * 22. [P3..P22,GCLR]
+ * 23. [P15..P32,OE1,OE2,GCLK1]
+ * 24. [F1..F2,P16..P32,OE1,OE2,GCLK1,GCLR]
+ * 25. [F1..F5,P16..P32,OE1,OE2,GCLK1,GCLR]
+ * 26. [F1..F7,P17..P32,OE1,OE2,GCLK1,GCLR]
+ * 27. [F1..F15,P22..P32,OE1,OE2,GCLK1,GCLR]
+ * 28. [F1..F16,P22..P32,OE1,OE2,GCLK1,GCLR]
+ * 29. [F1..F27,P29..P32,OE1,OE2,GCLK1,GCLR]
+ * 30. [P11..P14,P30..P32]			+ P32.oe = P31
+ */
+[F1..F32].ar = [P10..P14,P30..P32]:&;
+
+!N32   = [F30..F31]:&;
+
+P32    = N32 & F32;
+P32.oe = P31;
+
