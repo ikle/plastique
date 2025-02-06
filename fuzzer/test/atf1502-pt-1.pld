@@ -1,0 +1,40 @@
+Name      atf1502-pt-1;
+Partno    ATF1502;
+Revision  01;
+Date      Feb 2025;
+Designer  ikle;
+Company   None;
+Assembly  None;
+Location  Saint Petersburg;
+Device    f1502plcc44;
+
+Property Atmel {JTAG off};
+Property Atmel {pin_keep on};
+Property Atmel {logic_doubling on};
+Property Atmel {Foldback_Logic on};
+Property Atmel {Soft_Buffer    on};
+
+/*
+Pin [ 3,15,23,35] = Vcc;
+Pin [10,22,30,42] = GND;
+*/
+
+Pin [44, 43, 1, 2] = [OE1, GCLK1, GCLR, OE2];	/* Input-only pins	*/
+
+Pin [4..9,   11..14, 16..21] = [P1..P16];	/* MC1..MC16  I/O pins	*/
+Pin [41..36, 34..31, 29..24] = [P17..P32];	/* MC17..MC32 I/O pins	*/
+
+Pinnode	[601..632] = [F1..F32];			/* MC1..MC32 Feedbacks	*/
+Pinnode	[301..332] = ![N1..N32];		/* MC1..MC32 Foldbacks	*/
+
+/*
+ * P1 = [P9..P16,F17..F32,P17..P32]:&;		-- cannot route
+ * P1 = [P15..P16,F17..F32,P17..P32]:&;
+ * P1 = [P2..P32,F17..F25]:&;			-- +1 to UIM
+*/
+
+[F17..F32].d  = [P17..P32];
+[F17..F32].ck = GCLK1;
+
+P1 = [P2..P32,F21..F29]:&;
+
