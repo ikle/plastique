@@ -1,0 +1,74 @@
+Name      atf1502-pt-2;
+Partno    ATF1502;
+Revision  01;
+Date      Feb 2025;
+Designer  ikle;
+Company   None;
+Assembly  None;
+Location  Saint Petersburg;
+Device    f1502plcc44;
+
+Property Atmel {JTAG off};
+Property Atmel {pin_keep on};
+Property Atmel {logic_doubling on};
+Property Atmel {Foldback_Logic on};
+Property Atmel {Soft_Buffer    on};
+
+/*
+Pin [ 3,15,23,35] = Vcc;
+Pin [10,22,30,42] = GND;
+*/
+
+Pin [44, 43, 1, 2] = [OE1, GCLK1, GCLR, OE2];	/* Input-only pins	*/
+
+Pin [4..9,   11..14, 16..21] = [P1..P16];	/* MC1..MC16  I/O pins	*/
+Pin [41..36, 34..31, 29..24] = [P17..P32];	/* MC17..MC32 I/O pins	*/
+
+Pinnode	[601..632] = [F1..F32];			/* MC1..MC32 Feedbacks	*/
+Pinnode	[301..332] = ![N1..N32];		/* MC1..MC32 Foldbacks	*/
+
+/*
+ * P1 = [P9..P16,F17..F32,P17..P32]:&;		-- cannot route
+ * P1 = [P15..P16,F17..F32,P17..P32]:&;
+ * P1 = [P2..P32,F17..F25]:&;			-- +1 to UIM
+*/
+
+[F17..F32].d  = [P17..P32];
+[F17..F32].ck = GCLK1;
+
+[T0..T39] = [P3..P32,F20..F29];
+
+P1 = [T0..T39] : &;			/* to guarantee 40 mux outputs	*/
+
+[L0..L19] = [T0..T19];
+[H0..H19] = [T20..T39];
+
+/* NL5 aka all DC does not work! It produces 0 */
+
+$define NX0	'b'1x1x1x1x1x1x1x1x1x1x		/* i & 1  != 0	*/
+$define NX1	'b'11xx11xx11xx11xx11xx		/* i & 2  != 0	*/
+$define NL2	'b'xxxx1111xxxx1111xxxx		/* i & 4  != 0	*/
+$define NH2	'b'1111xxxx1111xxxx1111
+$define NL3	'b'xxxx11111111xxxxxxxx		/* i & 8  != 0	*/
+$define NH3	'b'xxxxxxxx11111111xxxx
+$define NL4	'b'1111xxxxxxxxxxxxxxxx		/* i & 16 != 0	*/
+$define NH4	'b'xxxxxxxx111111111111
+$define NL5	'b'xxxxxxxxxxxxxxxxxxxx		/* i & 32 != 0	*/
+$define NH5	'b'11111111xxxxxxxxxxxx
+
+$define PX0	'b'x1x1x1x1x1x1x1x1x1x1		/* i & 1  == 0	*/
+$define PX1	'b'xx11xx11xx11xx11xx11		/* i & 2  == 0	*/
+$define PL2	'b'1111xxxx1111xxxx1111		/* i & 4  == 0	*/
+$define PH2	'b'xxxx1111xxxx1111xxxx
+$define PL3	'b'1111xxxxxxxx11111111		/* i & 8  == 0	*/
+$define PH3	'b'11111111xxxxxxxx1111
+$define PL4	'b'xxxx1111111111111111		/* i & 16 == 0	*/
+$define PH4	'b'11111111xxxxxxxxxxxx
+$define PL5	'b'11111111111111111111		/* i & 32 == 0	*/
+$define PH5	'b'xxxxxxxx111111111111
+
+BL = [L0..L19] : PX1;
+BH = [H0..H19] : PX1;
+
+P2 = BL & BH;
+
