@@ -2,6 +2,8 @@
 # Atmels Tools Test
 #
 
+CUPLOPTS = -m0
+
 SOURCES	= $(wildcard *.pld)
 TARGETS	= $(patsubst %.pld,%.jed, $(SOURCES))
 
