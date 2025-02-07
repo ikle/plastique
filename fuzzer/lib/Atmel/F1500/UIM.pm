@@ -141,11 +141,13 @@ sub uim_save ($$) {
 # Generates and prints a report of the known UIM configuration and its
 # coverage.
 #
-sub uim_report ($) {
-	my ($table) = @_;
+sub uim_report ($;$$) {
+	my ($table, $prefix, $suffix) = @_;
 	my $rows = scalar @{$table};
 	my $cols = scalar @{$table->[0]};
 	my $fill = 0;
+
+	print $prefix if defined $prefix;
 
 	for (my $i = 0; $i < $rows; ++$i) {
 		print join ("\t", @{$table->[$i]}) . "\n";
@@ -158,6 +160,7 @@ sub uim_report ($) {
 	}
 
 	print "\ncoverage = $fill / " . ($rows * $cols) . "\n";
+	print $suffix if defined $suffix;
 }
 
 #
