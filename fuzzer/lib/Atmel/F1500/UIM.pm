@@ -145,7 +145,7 @@ sub uim_report ($) {
 	my ($table) = @_;
 	my $rows = scalar @{$table};
 	my $cols = scalar @{$table->[0]};
-	my $fill;
+	my $fill = 0;
 
 	for (my $i = 0; $i < $rows; ++$i) {
 		print join ("\t", @{$table->[$i]}) . "\n";
