@@ -111,10 +111,10 @@ sub ptm_update ($$) {
 	my $cols = scalar @{$table->[0]};
 
 	for my $mc (keys %{$jed}) {
-		die "E: To few rows in PT mapping\n" if ($mc - 1) > $rows;
+		die "E: To few rows in PT mapping\n" if $mc > $rows;
 
 		for my $pt (keys %{$jed->{$mc}}) {
-			die "E: To few columns in PT mapping\n" if ($pt - 1) > $cols;
+			die "E: To few columns in PT mapping\n" if $pt > $cols;
 
 			my $old = $table->[$mc - 1][$pt - 1];
 			my $new = $jed->{$mc}{$pt};
