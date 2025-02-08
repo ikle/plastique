@@ -24,6 +24,8 @@ our @EXPORT = qw (
 	ptm_update
 );
 
+use CVS::Table;
+
 #
 # Reads PT position mapping
 #
@@ -67,18 +69,8 @@ sub ptm_read_jed ($) {
 #
 sub ptm_alloc ($$) {
 	my ($cols, $rows) = @_;
-	my @row;
-	my @table;
 
-	for (my $i = 0; $i < $cols; ++$i) {
-		@row[$i] = '-';
-	}
-
-	for (my $i = 0; $i < $rows; ++$i) {
-		@table[$i] = [@row];
-	}
-
-	return \@table;
+	return table_alloc ($cols, $rows, '-');
 }
 
 #
@@ -86,41 +78,18 @@ sub ptm_alloc ($$) {
 # opened, returns an empty map.
 #
 sub ptm_load ($$$) {
-	my ($cols, $rows, $name) = @_;
-	my @table;
-	my $i = 0;
+	my ($cols, $rows, $path) = @_;
 
-	open my $csv, '<', "$name.csv" or return ptm_alloc ($cols, $rows);
-
-	for my $line (<$csv>) {
-		chomp $line;
-
-		die "E: Too many rows in $name.csv\n" if $i == $rows;
-
-		my @row = split (',', $line);
-
-		die "E: Too few fields in row $i of $name.csv\n"  if scalar @row < $cols;
-		die "E: Too many fields in row $i of $name.csv\n" if scalar @row > $cols;
-
-		@table[$i] = [@row];
-		++$i;
-        }
-
-	return \@table;
+	return table_load ($cols, $rows, $path, '-');
 }
 
 #
 # Saves the PT position map to the specified file.
 #
 sub ptm_save ($$) {
-	my ($table, $name) = @_;
-	my $rows = scalar @{$table};
+	my ($table, $path) = @_;
 
-	open my $csv, '>', "$name.csv" or die "E: Cannot write to $name.csv\n";
-
-	for (my $i = 0; $i < $rows; ++$i) {
-		print $csv join (',', @{$table->[$i]}) . "\n";
-	}
+	return table_save ($table, $path);
 }
 
 #
@@ -129,24 +98,8 @@ sub ptm_save ($$) {
 #
 sub ptm_report ($;$$) {
 	my ($table, $prefix, $suffix) = @_;
-	my $rows = scalar @{$table};
-	my $cols = scalar @{$table->[0]};
-	my $fill = 0;
 
-	print $prefix if defined $prefix;
-
-	for (my $i = 0; $i < $rows; ++$i) {
-		print join ("\t", @{$table->[$i]}) . "\n";
-	}
-
-	for (my $i = 0; $i < $rows; ++$i) {
-		for (my $j = 0; $j < $cols; ++$j) {
-			++$fill if $table->[$i][$j] ne '-';
-		}
-	}
-
-	print "\ncoverage = $fill / " . ($rows * $cols) . "\n";
-	print $suffix if defined $suffix;
+	return table_report ($table, '-', $prefix, $suffix);
 }
 
 #

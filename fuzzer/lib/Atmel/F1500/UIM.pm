@@ -24,6 +24,8 @@ our @EXPORT = qw (
 	uim_update
 );
 
+use CVS::Table;
+
 #
 # Returns map from jed config for single mux to column number
 #
@@ -81,18 +83,8 @@ sub uim_read_jed ($$$) {
 #
 sub uim_alloc ($$) {
 	my ($cols, $rows) = @_;
-	my @row;
-	my @table;
 
-	for (my $i = 0; $i < $cols; ++$i) {
-		@row[$i] = '-';
-	}
-
-	for (my $i = 0; $i < $rows; ++$i) {
-		@table[$i] = [@row];
-	}
-
-	return \@table;
+	return table_alloc ($cols, $rows, '-');
 }
 
 #
@@ -100,41 +92,18 @@ sub uim_alloc ($$) {
 # opened, returns an empty table.
 #
 sub uim_load ($$$) {
-	my ($cols, $rows, $name) = @_;
-	my @table;
-	my $i = 0;
+	my ($cols, $rows, $path) = @_;
 
-	open my $csv, '<', "$name.csv" or return uim_alloc ($cols, $rows);
-
-	for my $line (<$csv>) {
-		chomp $line;
-
-		die "E: Too many rows in $name.csv\n" if $i == $rows;
-
-		my @row = split (',', $line);
-
-		die "E: Too few fields in row $i of $name.csv\n"  if scalar @row < $cols;
-		die "E: Too many fields in row $i of $name.csv\n" if scalar @row > $cols;
-
-		@table[$i] = [@row];
-		++$i;
-	}
-
-	return \@table;
+	return table_load ($cols, $rows, $path, '-');
 }
 
 #
 # Saves the UIM table to the specified file.
 #
 sub uim_save ($$) {
-	my ($table, $name) = @_;
-	my $rows = scalar @{$table};
+	my ($table, $path) = @_;
 
-	open my $csv, '>', "$name.csv" or die "E: Cannot write to $name.csv\n";
-
-	for (my $i = 0; $i < $rows; ++$i) {
-		print $csv join (',', @{$table->[$i]}) . "\n";
-	}
+	return table_save ($table, $path);
 }
 
 #
@@ -143,24 +112,8 @@ sub uim_save ($$) {
 #
 sub uim_report ($;$$) {
 	my ($table, $prefix, $suffix) = @_;
-	my $rows = scalar @{$table};
-	my $cols = scalar @{$table->[0]};
-	my $fill = 0;
 
-	print $prefix if defined $prefix;
-
-	for (my $i = 0; $i < $rows; ++$i) {
-		print join ("\t", @{$table->[$i]}) . "\n";
-	}
-
-	for (my $i = 0; $i < $rows; ++$i) {
-		for (my $j = 0; $j < $cols; ++$j) {
-			++$fill if $table->[$i][$j] ne '-';
-		}
-	}
-
-	print "\ncoverage = $fill / " . ($rows * $cols) . "\n";
-	print $suffix if defined $suffix;
+	return table_report ($table, '-', $prefix, $suffix);
 }
 
 #
