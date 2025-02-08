@@ -1,0 +1,174 @@
+#!/usr/bin/perl -Ilib
+#
+# Fuzzer script to detect Atmel ATF1502 Product Term configuration
+#
+# Copyright (c) 2025 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+use strict;
+use warnings;
+
+# use Data::Dumper;
+
+use File::Basename	qw (basename dirname);
+use File::Copy		qw (copy);
+use File::Path		qw (mkpath rmtree);
+
+use Atmel::F1500::PTC;
+use Atmel::F1502;
+
+my $path = 'work/test';
+
+sub make_sources ($$$) {
+	my ($base, $target, $f) = @_;
+	my @src;
+
+	for (my $i = 1; $i <= 32; ++$i) {
+		push (@src, "${f}P$i") unless ($i == $base or $i == $target);
+	}
+
+	for (my $i = 20; $i <= 29; ++$i) {
+		push (@src, "${f}F$i");
+	}
+
+	return \@src;
+}
+
+sub make_sample ($$$$$$) {
+	my ($path, $base, $target, $index, $type, $invert) = @_;
+	my $src = make_sources ($base, $target, $type eq 'N' ? '!': '');
+
+	mkpath (dirname ($path));
+	copy ("$0-base.pld", "$path.pld") or die "E: Cannot copy base\n";
+
+	open my $test, '>>', "$path.pld" or die "E: Cannot open test file\n";
+
+	print $test '[T0..T39] = [' . join (',', @{$src}) . "];\n";
+	print $test "P$base = [T0..T39] : &;\n";
+
+	my $mask = (1 << $index);
+	my @vars;
+
+	for (my $i = 0; $i < 40; ++$i) {
+		push (@vars, "T$i") if (($i & $mask) != 0 xor $invert);
+	}
+
+	print $test "P$target = " . join (' & ', @vars) . ";\n";
+
+	return compile (dirname ($path), basename ($path), 'P1502C44');
+}
+
+sub make_samples ($$$$$) {
+	my ($path, $base, $target, $type, $invert) = @_;
+	my @conf = (0) x 96;
+
+	for (my $index = 0; $index < 6; ++$index) {
+		make_sample ($path, $base, $target, $index, $type, $invert);
+
+		my $pts = ptc_read_jed ($path);			# print Dumper $pts;
+		my @vec = split (//, $pts->{$target}{1});	# print Dumper \@vec;
+		my $mask = (1 << $index);
+
+		for (my $i = 0; $i < 96; ++$i) {
+			$conf[$i] += $mask if $vec[$i] != 0;
+		}
+	}
+
+	return \@conf;
+}
+
+sub get_pin_remap ($) {
+	my ($path) = @_;
+	my %map;
+
+	open my $fit, '<', "$path.fit" or die "E: Cannot open $path.fit\n";
+
+	for my $line (<$fit>) {
+		if ($line =~ /^Pin .*= (P\d+); .* MC\s+(\d+)/) {
+			$map{$1} = "P$2";
+		}
+		elsif ($line =~ /^PINNODE .*= (F\d+); .* MC\s+(\d+)/) {
+			$map{$1} = "F$2";
+		}
+	}
+
+	return \%map;
+}
+
+sub get_mux_revmap ($$) {
+	my ($path, $lab) = @_;
+	my $cur;
+	my %map;
+
+	open my $fit, '<', "$path.fit" or die "E: Cannot open $path.fit\n";
+
+	for my $line (<$fit>) {
+		if ($line =~ /: MUX (\d+)\s+Ref\s+\(([^)]+)/) {
+			my ($mux, $name) = ($1, $2);
+
+			$name = "F$1" if $name =~ /^[A-Z](\d+)fb$/;
+			$name = "P$1" if $name =~ /^[A-Z](\d+)p$/;
+
+			$map{$name} = $mux if $cur eq $lab;
+		}
+		elsif ($line =~ /^Multiplexer assignment for block ([A-Z])/) {
+			$cur = $1;
+		}
+	}
+
+	return \%map;
+}
+
+sub make_map ($$$$$) {
+	my ($path, $lab, $base, $target, $type) = @_;
+	my $pos  = make_samples ($path, $base, $target, $type, 0);
+	my $neg  = make_samples ($path, $base, $target, $type, 1);
+
+	my @map  = ('-') x 96;
+	my $mask = 0x3F;
+	my $src  = make_sources ($base, $target, '');
+	my $pins = get_pin_remap  ($path);
+	my $rev  = get_mux_revmap ($path, $lab);
+
+	for (my $i = 0; $i < 96; ++$i) {
+		next unless ($pos->[$i] & $mask) == (~$neg->[$i] & $mask);
+
+		$map[$i] = $type . $rev->{$pins->{$src->[$neg->[$i]]}};
+	}
+
+#	print Dumper \@map;
+	return \@map;
+}
+
+sub ptc_update_one ($$$$) {
+	my ($o, $lab, $base, $target) = @_;
+	my $map;
+
+	$map = make_map ($path, 'A', $base, $target, 'P');
+	ptc_update ($o->{'ptc'}, $map) if defined $map;
+
+	$map = make_map ($path, 'A', $base, $target, 'N');
+	ptc_update ($o->{'ptc'}, $map) if defined $map;
+
+	f1502_update ($o, $path);
+}
+
+sub ptc_update_lab ($$) {
+	my ($o, $lab) = @_;
+
+	ptc_update_one ($o, 'A', 2, 1);
+
+	for (my $target = 2; $target <= 16; ++$target) {
+		ptc_update_one ($o, 'A', 1, $target);
+	}
+}
+
+my $o = f1502_load ('db');
+
+ptc_update_lab ($o, 'A');
+
+f1502_report ($o);
+f1502_save   ($o, 'db');
+
