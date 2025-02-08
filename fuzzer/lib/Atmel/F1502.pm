@@ -15,6 +15,7 @@ require Exporter;
 
 our @ISA = qw (Exporter);
 
+use Atmel::F1500::PIM;
 use Atmel::F1500::PTC;
 use Atmel::F1500::PTM;
 use Atmel::F1500::Tools;
@@ -35,6 +36,7 @@ our @EXPORT = qw (
 sub f1502_alloc () {
 	my %o;
 
+	$o{'pim'} = pim_alloc (2, 40);
 	$o{'ptc'} = ptc_alloc (96);
 	$o{'ptm'} = ptm_alloc (5, 32);
 	$o{'uim'} = uim_alloc (5, 40);
@@ -46,6 +48,7 @@ sub f1502_load ($) {
 	my ($db) = @_;
 	my %o;
 
+	$o{'pim'} = pim_load (2, 40, "$db/atmel/f1502/pim");
 	$o{'ptc'} = ptc_load (96,    "$db/atmel/f1502/ptc");
 	$o{'ptm'} = ptm_load (5, 32, "$db/atmel/f1502/ptm");
 	$o{'uim'} = uim_load (5, 40, "$db/atmel/f1502/uim");
@@ -56,6 +59,7 @@ sub f1502_load ($) {
 sub f1502_save ($$) {
 	my ($o, $db) = @_;
 
+	pim_save ($o->{'pim'}, "$db/atmel/f1502/pim");
 	ptc_save ($o->{'ptc'}, "$db/atmel/f1502/ptc");
 	ptm_save ($o->{'ptm'}, "$db/atmel/f1502/ptm");
 	uim_save ($o->{'uim'}, "$db/atmel/f1502/uim");
@@ -64,6 +68,7 @@ sub f1502_save ($$) {
 sub f1502_report ($) {
 	my ($o) = @_;
 
+	pim_report ($o->{'pim'}, "# UIM Position Mapping\n\n", "\n");
 	ptc_report ($o->{'ptc'}, "# PT Configuration\n\n", "\n");
 	ptm_report ($o->{'ptm'}, "# PT Position Mapping\n\n", "\n");
 	uim_report ($o->{'uim'}, "# UIM Mapping\n\n");
@@ -72,6 +77,7 @@ sub f1502_report ($) {
 sub f1502_update ($$) {
 	my ($o, $path) = @_;
 
+	pim_update ($o->{'pim'},        pim_read_jed (       $path));
 	ptm_update ($o->{'ptm'},        ptm_read_jed (       $path));
 	uim_update ($o->{'uim'}, $path, uim_read_jed (5, 40, $path));
 }
