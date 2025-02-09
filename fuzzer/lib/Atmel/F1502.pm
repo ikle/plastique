@@ -37,8 +37,9 @@ sub f1502_alloc () {
 	my %o;
 
 	$o{'pim'} = pim_alloc (2, 40);
-	$o{'ptc'} = ptc_alloc (96);
 	$o{'ptm'} = ptm_alloc (5, 32);
+
+	$o{'ptc'} = ptc_alloc (96);
 	$o{'uim'} = uim_alloc (5, 40);
 
 	return \%o;
@@ -49,8 +50,9 @@ sub f1502_load ($) {
 	my %o;
 
 	$o{'pim'} = pim_load (2, 40, "$db/atmel/f1502/pim");
-	$o{'ptc'} = ptc_load (96,    "$db/atmel/f1502/ptc");
 	$o{'ptm'} = ptm_load (5, 32, "$db/atmel/f1502/ptm");
+
+	$o{'ptc'} = ptc_load (96,    "$db/atmel/f1502/ptc");
 	$o{'uim'} = uim_load (5, 40, "$db/atmel/f1502/uim");
 
 	return \%o;
@@ -60,8 +62,9 @@ sub f1502_save ($$) {
 	my ($o, $db) = @_;
 
 	pim_save ($o->{'pim'}, "$db/atmel/f1502/pim");
-	ptc_save ($o->{'ptc'}, "$db/atmel/f1502/ptc");
 	ptm_save ($o->{'ptm'}, "$db/atmel/f1502/ptm");
+
+	ptc_save ($o->{'ptc'}, "$db/atmel/f1502/ptc");
 	uim_save ($o->{'uim'}, "$db/atmel/f1502/uim");
 }
 
@@ -69,8 +72,9 @@ sub f1502_report ($) {
 	my ($o) = @_;
 
 	pim_report ($o->{'pim'}, "# UIM Position Mapping\n\n", "\n");
-	ptc_report ($o->{'ptc'}, "# PT Configuration\n\n", "\n");
 	ptm_report ($o->{'ptm'}, "# PT Position Mapping\n\n", "\n");
+
+	ptc_report ($o->{'ptc'}, "# PT Configuration\n\n", "\n");
 	uim_report ($o->{'uim'}, "# UIM Mapping\n\n");
 }
 
