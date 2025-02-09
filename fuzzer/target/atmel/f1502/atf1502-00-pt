@@ -138,6 +138,8 @@ sub make_map ($$$$$) {
 	for (my $i = 0; $i < 96; ++$i) {
 		next unless ($pos->[$i] & $mask) == (~$neg->[$i] & $mask);
 
+		die "E: Not an active zero\n" unless $neg->[$i] < 40;
+
 		$map[$i] = $type . $rev->{$pins->{$src->[$neg->[$i]]}};
 	}
 
