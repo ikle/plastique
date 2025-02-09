@@ -28,12 +28,8 @@ our @EXPORT = qw (
 #
 sub table_alloc ($$$) {
 	my ($cols, $rows, $default) = @_;
-	my @row;
+	my @row = ($default) x $cols;
 	my @table;
-
-	for (my $i = 0; $i < $cols; ++$i) {
-		@row[$i] = $default;
-	}
 
 	for (my $i = 0; $i < $rows; ++$i) {
 		@table[$i] = [@row];

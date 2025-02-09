@@ -65,11 +65,7 @@ sub ptc_read_jed ($) {
 #
 sub ptc_alloc ($) {
 	my ($cols) = @_;
-	my @row;
-
-	for (my $i = 0; $i < $cols; ++$i) {
-		@row[$i] = '-';
-	}
+	my @row = ('-') x $cols;
 
 	return \@row;
 }
