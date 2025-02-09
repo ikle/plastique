@@ -65,7 +65,8 @@ sub make_samples ($$$$$) {
 	my @conf = (0) x 96;
 
 	for (my $index = 0; $index < 6; ++$index) {
-		make_sample ($path, $base, $target, $index, $type, $invert);
+		return undef
+		unless make_sample ($path, $base, $target, $index, $type, $invert);
 
 		my $pts = ptc_read_jed ($path);
 		my @vec = split (//, $pts->{$target}{1});	# PT1
@@ -125,6 +126,8 @@ sub make_map ($$$$$) {
 	my ($path, $lab, $base, $target, $type) = @_;
 	my $pos  = make_samples ($path, $base, $target, $type, 0);
 	my $neg  = make_samples ($path, $base, $target, $type, 1);
+
+	return undef unless defined $pos and defined $neg;
 
 	my @map  = ('-') x 96;
 	my $mask = 0x3F;
