@@ -17,6 +17,7 @@ use File::Copy		qw (copy);
 use File::Path		qw (mkpath rmtree);
 
 use Atmel::F1500::PTC;
+use Atmel::F1500::UIM;
 use Atmel::F1502;
 
 my $path = 'work/test';
@@ -98,30 +99,6 @@ sub get_pin_remap ($) {
 	return \%map;
 }
 
-sub get_mux_revmap ($$) {
-	my ($path, $lab) = @_;
-	my $cur;
-	my %map;
-
-	open my $fit, '<', "$path.fit" or die "E: Cannot open $path.fit\n";
-
-	for my $line (<$fit>) {
-		if ($line =~ /: MUX (\d+)\s+Ref\s+\(([^)]+)/) {
-			my ($mux, $name) = ($1, $2);
-
-			$name = "F$1" if $name =~ /^[A-Z](\d+)fb$/;
-			$name = "P$1" if $name =~ /^[A-Z](\d+)p$/;
-
-			$map{$name} = $mux if $cur eq $lab;
-		}
-		elsif ($line =~ /^Multiplexer assignment for block ([A-Z])/) {
-			$cur = $1;
-		}
-	}
-
-	return \%map;
-}
-
 sub make_map ($$$$$) {
 	my ($path, $lab, $base, $target, $type) = @_;
 	my $pos  = make_samples ($path, $base, $target, $type, 0);
@@ -133,7 +110,7 @@ sub make_map ($$$$$) {
 	my $mask = 0x3F;
 	my $src  = make_sources ($base, $target, '');
 	my $pins = get_pin_remap  ($path);
-	my $rev  = get_mux_revmap ($path, $lab);
+	my $rev  = uim_revmap ($path, $lab);
 
 	for (my $i = 0; $i < 96; ++$i) {
 		next unless ($pos->[$i] & $mask) == (~$neg->[$i] & $mask);

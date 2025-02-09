@@ -22,6 +22,7 @@ our @EXPORT = qw (
 	uim_save
 	uim_report
 	uim_update
+	uim_revmap
 );
 
 use CVS::Table;
@@ -149,6 +150,30 @@ sub uim_update ($$$) {
 			$lab = $1;
 		}
 	}
+}
+
+sub uim_revmap ($$) {
+	my ($path, $lab) = @_;
+	my $cur;
+	my %map;
+
+	open my $fit, '<', "$path.fit" or die "E: Cannot open $path.fit\n";
+
+	for my $line (<$fit>) {
+		if ($line =~ /: MUX (\d+)\s+Ref\s+\(([^)]+)/) {
+			my ($mux, $name) = ($1, $2);
+
+			$name = "F$1" if $name =~ /^[A-Z](\d+)fb$/;
+			$name = "P$1" if $name =~ /^[A-Z](\d+)p$/;
+
+			$map{$name} = $mux if $cur eq $lab;
+		}
+		elsif ($line =~ /^Multiplexer assignment for block ([A-Z])/) {
+			$cur = $1;
+		}
+	}
+
+	return \%map;
 }
 
 1;
