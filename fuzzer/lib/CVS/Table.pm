@@ -22,6 +22,9 @@ our @EXPORT = qw (
 	table_report
 );
 
+use File::Basename	qw (dirname);
+use File::Path		qw (mkpath);
+
 #
 # Creates a table of `cols' columns and `rows' rows filled with the
 # default value.
@@ -72,6 +75,8 @@ sub table_load ($$$$) {
 sub table_save ($$) {
 	my ($table, $path) = @_;
 	my $rows = scalar @{$table};
+
+	mkpath (dirname ($path));
 
 	open my $csv, '>', "$path.csv" or die "E: Cannot write to $path.csv\n";
 
