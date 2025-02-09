@@ -21,24 +21,17 @@ our @EXPORT = qw (
 	fit
 );
 
-use File::Basename	qw (basename dirname);
-
 sub cupl ($) {
 	my ($path) = @_;
-	my ($root, $name) = (dirname ($path), basename ($path));
-
-	my $cmd = "cupl -jx -m0 $name.pld";
 
 	unlink ("$path.tt2");
-	system ("(cd $root && $cmd)");
+	system ('cupl', '-jx', '-m0', "$path.pld");
 
 	return -e "$path.tt2";
 }
 
 sub fit ($$) {
 	my ($path, $device) = @_;
-	my ($root, $name) = (dirname ($path), basename ($path));
-
 	my $fitter;
 
 	$fitter = 'fit1502' if $device =~ /^P1502/;
@@ -47,10 +40,8 @@ sub fit ($$) {
 
 	die "E: Unknown device type $device\n" unless defined $fitter;
 
-	my $cmd = "$fitter $name.tt2 -cupl -device $device";
-
 	unlink ("$path.jed");
-	system ("(cd $root && $cmd)");
+	system ($fitter, "$path.tt2", '-cupl', '-device', $device);
 
 	return -e "$path.jed";
 }
