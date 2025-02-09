@@ -67,8 +67,8 @@ sub make_samples ($$$$$) {
 	for (my $index = 0; $index < 6; ++$index) {
 		make_sample ($path, $base, $target, $index, $type, $invert);
 
-		my $pts = ptc_read_jed ($path);			# print Dumper $pts;
-		my @vec = split (//, $pts->{$target}{1});	# print Dumper \@vec;
+		my $pts = ptc_read_jed ($path);
+		my @vec = split (//, $pts->{$target}{1});	# PT1
 		my $mask = (1 << $index);
 
 		for (my $i = 0; $i < 96; ++$i) {
