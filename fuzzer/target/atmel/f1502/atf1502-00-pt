@@ -57,7 +57,7 @@ sub make_sample ($$$$$$) {
 
 	print $test "P$target = " . join (' & ', @vars) . ";\n";
 
-	return compile (dirname ($path), basename ($path), 'P1502C44');
+	return compile ($path, 'P1502C44');
 }
 
 sub make_samples ($$$$$) {

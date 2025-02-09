@@ -21,19 +21,24 @@ our @EXPORT = qw (
 	fit
 );
 
-sub cupl ($$) {
-	my ($root, $name) = @_;
+use File::Basename	qw (basename dirname);
+
+sub cupl ($) {
+	my ($path) = @_;
+	my ($root, $name) = (dirname ($path), basename ($path));
 
 	my $cmd = "cupl -jx -m0 $name.pld";
 
-	unlink ("$root/$name.tt2");
+	unlink ("$path.tt2");
 	system ("(cd $root && $cmd)");
 
-	return -e "$root/$name.tt2";
+	return -e "$path.tt2";
 }
 
-sub fit ($$$) {
-	my ($root, $name, $device) = @_;
+sub fit ($$) {
+	my ($path, $device) = @_;
+	my ($root, $name) = (dirname ($path), basename ($path));
+
 	my $fitter;
 
 	$fitter = 'fit1502' if $device =~ /^P1502/;
@@ -44,18 +49,18 @@ sub fit ($$$) {
 
 	my $cmd = "$fitter $name.tt2 -cupl -device $device";
 
-	unlink ("$root/$name.jed");
+	unlink ("$path.jed");
 	system ("(cd $root && $cmd)");
 
-	return -e "$root/$name.jed";
+	return -e "$path.jed";
 }
 
-sub compile ($$$) {
-	my ($root, $name, $device) = @_;
+sub compile ($$) {
+	my ($path, $device) = @_;
 
-	return 0 if -e "$root/$name.pld" and not cupl ($root, $name);
+	return 0 if -e "$path.pld" and not cupl ($path);
 
-	return fit ($root, $name, $device);
+	return fit ($path, $device);
 }
 
 1;
