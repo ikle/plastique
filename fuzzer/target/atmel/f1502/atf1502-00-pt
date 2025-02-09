@@ -109,7 +109,7 @@ sub make_map ($$$$$) {
 	my @map  = ('-') x 96;
 	my $mask = 0x3F;
 	my $src  = make_sources ($base, $target, '');
-	my $pins = get_pin_remap  ($path);
+	my $pins = get_pin_remap ($path);
 	my $rev  = uim_revmap ($path, $lab);
 
 	for (my $i = 0; $i < 96; ++$i) {
