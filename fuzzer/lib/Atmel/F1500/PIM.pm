@@ -111,7 +111,7 @@ sub pim_update ($$) {
 
 			next if ($new eq '-' or $old eq $new);
 
-			die "E: Mapping conflict for Mux $mux of LAB\n"
+			die "E: Mapping conflict for Mux $mux of LAB $lab\n"
 			unless ($old eq '-');
 
 			$table->[$mux][$i] = $new;
