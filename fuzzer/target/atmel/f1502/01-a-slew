@@ -60,7 +60,6 @@ sub get_sample ($$$$) {
 sub make_samples ($$$) {
 	my ($o, $path, $invert) = @_;
 	my $order = $o->{order};
-	my $lab   = $o->{lab};
 	my $cols  = $o->{cols};
 	my $rows  = $o->{rows};
 	my $conf  = table_alloc ($cols, $rows, 0);
@@ -80,7 +79,6 @@ sub make_samples ($$$) {
 
 sub make_map ($$) {
 	my ($o, $path) = @_;
-	my $lab = $o->{lab};
 	my $pos = make_samples ($o, $path, 0);
 	my $neg = make_samples ($o, $path, 1);
 
