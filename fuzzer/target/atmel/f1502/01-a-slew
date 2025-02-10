@@ -1,6 +1,6 @@
 #!/usr/bin/perl -Ilib
 #
-# Fuzzer script to detect Atmel ATF1502 Pin Keeper configuration
+# Fuzzer script to detect Atmel ATF1502 Slew Rate configuration
 #
 # Copyright (c) 2025 Alexei A. Smekalkine <ikle@ikle.ru>
 #
