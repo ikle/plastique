@@ -22,10 +22,26 @@ our @EXPORT = qw (
 use CVS::Table;
 
 #
+# Generate sample vector
+#
+sub make_bit_vector ($$$) {
+	my ($count, $index, $invert) = @_;
+	my $mask  = (1 << $index);
+	my @vec;
+
+	for (my $i = 0; $i < $count; ++$i) {
+		push (@vec, $i) if (($i & $mask) != 0 xor $invert);
+	}
+
+	return \@vec;
+}
+
+#
 # Run samples and generate positive or negative map
 #
 sub make_bit_samples ($$) {
 	my ($o, $invert) = @_;
+	my $count = $o->{count};
 	my $order = $o->{order};
 	my $cb    = $o->{cb};
 	my $cols  = $o->{cols};
@@ -33,7 +49,8 @@ sub make_bit_samples ($$) {
 	my $conf  = table_alloc ($cols, $rows, 0);
 
 	for (my $i = 0; $i < $order; ++$i) {
-		my $st = $cb->($o, $i, $invert);
+		my $vec = make_bit_vector ($count, $i, $invert);
+		my $st  = $cb->($o, $vec);
 
 		return undef unless defined $st;
 

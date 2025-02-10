@@ -31,8 +31,8 @@ use MAP::Fuzzer;
 #
 # Generate and compile pin option test
 #
-sub make_opt_sample ($$$$) {
-	my ($o, $path, $index, $invert) = @_;
+sub make_opt_sample ($$$) {
+	my ($o, $path, $vec) = @_;
 
 	mkpath (dirname ($path));
 	copy ($o->{head}, "$path.pld") or die "E: Cannot copy base\n";
@@ -45,14 +45,8 @@ sub make_opt_sample ($$$$) {
 	my $opt   = $o->{opt};
 
 	my $base  = (ord ($lab) - ord ('A')) * $count + 1;
-	my $mask  = (1 << $index);
-	my @a;
 
-	for (my $i = 0; $i < $count; ++$i) {
-		my $n = $base + $i;
-
-		push (@a, "P$n") if (($i & $mask) != 0 xor $invert);
-	}
+	my @a = map { 'P' . ($base + $_) } @{$vec};
 
 	return compile ($path, $dev, '-strategy', $opt, '=', 'off') if scalar @a == 0;
 	return compile ($path, $dev, '-strategy', $opt, '=', @a);
@@ -69,14 +63,14 @@ sub make_opt_sample ($$$$) {
 #	'lab'	=> 'A',			# LAB name to test
 #);
 #
-sub pin_opt_sample ($$$) {
-	my ($o, $index, $invert) = @_;
+sub pin_opt_sample ($$) {
+	my ($o, $vec) = @_;
 	my $path = $o->{path};
 	my $cols = $o->{cols};
 	my $rows = $o->{rows};
 	my $lab  = $o->{lab};
 
-	return undef unless make_opt_sample ($o, $path, $index, $invert);
+	return undef unless make_opt_sample ($o, $path, $vec);
 	return mcc_read_conf ($cols, $rows, $path, $lab);
 }
 
