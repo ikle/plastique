@@ -18,8 +18,6 @@ use Atmel::F1500::MCC;
 use Atmel::F1502;
 use CVS::Table;
 
-my $path = 'work/test';
-
 sub make_sample ($$$$) {
 	my ($o, $path, $index, $invert) = @_;
 
@@ -47,8 +45,9 @@ sub make_sample ($$$$) {
 	return compile ($path, $dev, '-strategy', $opt, '=', @a);
 }
 
-sub get_sample ($$$$) {
-	my ($o, $path, $index, $invert) = @_;
+sub get_sample ($$$) {
+	my ($o, $index, $invert) = @_;
+	my $path = $o->{path};
 	my $cols = $o->{cols};
 	my $rows = $o->{rows};
 	my $lab  = $o->{lab};
@@ -57,8 +56,8 @@ sub get_sample ($$$$) {
 	return mcc_read_conf ($cols, $rows, $path, $lab);
 }
 
-sub make_samples ($$$) {
-	my ($o, $path, $invert) = @_;
+sub make_samples ($$) {
+	my ($o, $invert) = @_;
 	my $order = $o->{order};
 	my $cb    = $o->{cb};
 	my $cols  = $o->{cols};
@@ -66,7 +65,7 @@ sub make_samples ($$$) {
 	my $conf  = table_alloc ($cols, $rows, 0);
 
 	for (my $i = 0; $i < $order; ++$i) {
-		my $st = $cb->($o, $path, $i, $invert);
+		my $st = $cb->($o, $i, $invert);
 
 		return undef unless defined $st;
 
@@ -80,10 +79,10 @@ sub make_samples ($$$) {
 	return $conf;
 }
 
-sub make_map ($$) {
-	my ($o, $path) = @_;
-	my $pos = make_samples ($o, $path, 0);
-	my $neg = make_samples ($o, $path, 1);
+sub make_map ($) {
+	my ($o) = @_;
+	my $pos = make_samples ($o, 0);
+	my $neg = make_samples ($o, 1);
 
 	return undef unless defined $pos and defined $neg;
 
@@ -109,6 +108,7 @@ sub make_map ($$) {
 }
 
 my %conf = (
+	'path'	=> 'work/test',		# test files prefix
 	'cb'	=> \&get_sample,	# sample table generator
 	'dev'	=> 'P1502C44',		# target device for fitter
 	'opt'	=> 'output_fast',	# fitter option
@@ -121,7 +121,7 @@ my %conf = (
 );
 
 my $o   = f1502_load ('db');
-my $mcc = make_map (\%conf, $path);
+my $mcc = make_map (\%conf);
 
 mcc_update ($o->{'mcc'}, $mcc) if defined $mcc;
 
