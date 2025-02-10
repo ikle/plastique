@@ -1,0 +1,106 @@
+#!/usr/bin/perl -Ilib
+#
+# Fuzzer script to detect Atmel ATF1502 Pin Keeper configuration
+#
+# Copyright (c) 2025 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+use strict;
+use warnings;
+
+use File::Basename	qw (dirname);
+use File::Copy		qw (copy);
+use File::Path		qw (mkpath);
+
+use Atmel::F1500::MCC;
+use Atmel::F1502;
+use CVS::Table;
+
+my $path = 'work/test';
+
+sub make_sample ($$$) {
+	my ($path, $index, $invert) = @_;
+
+	mkpath (dirname ($path));
+	copy ("$0-base.pld", "$path.pld") or die "E: Cannot copy base\n";
+
+	open my $test, '>>', "$path.pld" or die "E: Cannot open test file\n";
+
+	my $mask = (1 << $index);
+	my @a;
+
+	for (my $i = 0; $i < 16; ++$i) {
+		my $n = $i + 1;
+
+		push (@a, "P$n") if (($i & $mask) != 0 xor $invert);
+	}
+
+	return compile ($path, 'P1502C44', '-strategy', 'output_fast', '=', 'off') if scalar @a == 0;
+	return compile ($path, 'P1502C44', '-strategy', 'output_fast', '=', @a);
+}
+
+sub make_samples ($$$) {
+	my ($path, $lab, $invert) = @_;
+	my $conf = table_alloc (12, 32, 0);
+
+	for (my $index = 0; $index < 5; ++$index) {
+		return undef unless make_sample ($path, $index, $invert);
+
+		my $mcs  = mcc_read_jed ($path);
+		my $mask = (1 << $index);
+
+		die "E: Cannot find LAB $lab MC Config\n"
+		unless defined $mcs->{$lab};
+
+		for (my $col = 0; $col < 12; ++$col) {
+			die "E: Cannot find LAB $lab MC Config $col\n"
+			unless defined $mcs->{$lab}{$col};
+
+			my @vec = split (//, $mcs->{$lab}{$col});
+
+			die "E: Wrong size of LAB $lab MC Config $col\n"
+			unless scalar @vec == 32;
+
+			for (my $row = 0; $row < 32; ++$row) {
+				$conf->[$row][$col] += $mask if $vec[$row] != 0;
+			}
+		}
+	}
+
+	return $conf;
+}
+
+sub make_map ($$) {
+	my ($path, $lab) = @_;
+	my $pos = make_samples ($path, $lab, 0);
+	my $neg = make_samples ($path, $lab, 1);
+
+	return undef unless defined $pos and defined $neg;
+
+	my $map = mcc_alloc (12, 32);
+	my $mask = 0x1F;
+
+	for (my $row = 0; $row < 32; ++$row) {
+		for (my $col = 0; $col < 12; ++$col) {
+			my $P = $pos->[$row][$col];
+			my $N = $neg->[$row][$col];
+
+			next unless ($P & $mask) == (~$N & $mask);
+
+			$map->[$row][$col] = ($N < 16) ? "!FAST$N" : "FAST$P";
+		}
+	}
+
+	return $map;
+}
+
+my $o   = f1502_load ('db');
+my $mcc = make_map ($path, 'A');
+
+mcc_update ($o->{'mcc'}, $mcc) if defined $mcc;
+
+f1502_report ($o);
+f1502_save   ($o, 'db');
+
