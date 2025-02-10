@@ -15,6 +15,7 @@ require Exporter;
 
 our @ISA = qw (Exporter);
 
+use Atmel::F1500::MCC;
 use Atmel::F1500::MCM;
 use Atmel::F1500::PIM;
 use Atmel::F1500::PTC;
@@ -42,6 +43,7 @@ sub f1502_alloc () {
 	$o{'mcm'} = ptm_alloc (12, 2);
 
 	$o{'ptc'} = ptc_alloc (96);
+	$o{'mcc'} = mcc_alloc (12, 32);
 	$o{'uim'} = uim_alloc (5, 40);
 
 	return \%o;
@@ -56,6 +58,7 @@ sub f1502_load ($) {
 	$o{'mcm'} = mcm_load (12, 2, "$db/atmel/f1502/mcm");
 
 	$o{'ptc'} = ptc_load (96,    "$db/atmel/f1502/ptc");
+	$o{'mcc'} = mcc_load (12, 32,"$db/atmel/f1502/mcc");
 	$o{'uim'} = uim_load (5, 40, "$db/atmel/f1502/uim");
 
 	return \%o;
@@ -69,6 +72,7 @@ sub f1502_save ($$) {
 	mcm_save ($o->{'mcm'}, "$db/atmel/f1502/mcm");
 
 	ptc_save ($o->{'ptc'}, "$db/atmel/f1502/ptc");
+	mcc_save ($o->{'mcc'}, "$db/atmel/f1502/mcc");
 	uim_save ($o->{'uim'}, "$db/atmel/f1502/uim");
 }
 
@@ -80,6 +84,7 @@ sub f1502_report ($) {
 	mcm_report ($o->{'mcm'}, "# MC Position Mapping\n\n", "\n");
 
 	ptc_report ($o->{'ptc'}, "# PT Configuration\n\n", "\n");
+	mcc_report ($o->{'mcc'}, "# MC Configuration\n\n", "\n");
 	uim_report ($o->{'uim'}, "# UIM Mapping\n\n");
 }
 
