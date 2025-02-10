@@ -58,23 +58,13 @@ sub make_samples ($$$) {
 	for (my $index = 0; $index < $order; ++$index) {
 		return undef unless make_sample ($o, $path, $index, $invert);
 
-		my $mcs  = mcc_read_jed ($path);
-		my $mask = (1 << $index);
+		my $st = mcc_read_conf ($cols, $rows, $path, $lab);
 
-		die "E: Cannot find LAB $lab MC Config\n"
-		unless defined $mcs->{$lab};
+		die "E: Cannot find LAB $lab MC Config\n" unless defined $st;
 
 		for (my $col = 0; $col < $cols; ++$col) {
-			die "E: Cannot find LAB $lab MC Config $col\n"
-			unless defined $mcs->{$lab}{$col};
-
-			my @vec = split (//, $mcs->{$lab}{$col});
-
-			die "E: Wrong size of LAB $lab MC Config $col\n"
-			unless scalar @vec == $rows;
-
 			for (my $row = 0; $row < $rows; ++$row) {
-				$conf->[$row][$col] += $mask if $vec[$row] != 0;
+				$conf->[$row][$col] += $st->[$row][$col] << $index;
 			}
 		}
 	}
