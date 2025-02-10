@@ -82,7 +82,10 @@ sub make_bit_map ($) {
 
 			next unless ($P & $mask) == (~$N & $mask);
 
-			$map->[$row][$col] = ($N < $count) ? "!${name}$N" : "${name}$P";
+			my $control = ($N < $count) ? "!$name$N" : "$name$P";
+
+			$control =~ s/^!!//;
+			$map->[$row][$col] = $control;
 		}
 	}
 
