@@ -77,7 +77,7 @@ sub mcc_read_conf ($$$$) {
 	my $conf = table_alloc ($cols, $rows, 0);  # todo: get default from jed
 	my $jed  = mcc_read_jed ($path);
 
-	return undef unless defined $jed->{$lab};
+	return $conf unless defined $jed->{$lab};
 
 	for (my $col = 0; $col < $cols; ++$col) {
 		next unless defined $jed->{$lab}{$col};
