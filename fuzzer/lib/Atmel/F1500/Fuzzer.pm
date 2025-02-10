@@ -48,14 +48,12 @@ sub make_base ($$) {
 #
 sub make_opt_sample ($$$) {
 	my ($o, $path, $vec) = @_;
-
-	my $test = make_base ($path, $o->{head});
-
 	my $count = $o->{count};
 	my $lab   = $o->{lab};
 	my $dev   = $o->{dev};
 	my $opt   = $o->{opt};
 
+	my $test  = make_base ($path, $o->{head});
 	my $base  = (ord ($lab) - ord ('A')) * $count + 1;
 
 	my @a = map { 'P' . ($base + $_) } @{$vec};
