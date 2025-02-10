@@ -30,8 +30,8 @@ sub cupl ($) {
 	return -e "$path.tt2";
 }
 
-sub fit ($$) {
-	my ($path, $device) = @_;
+sub fit ($$;@) {
+	my ($path, $device, @opts) = @_;
 	my $fitter;
 
 	$fitter = 'fit1502' if $device =~ /^P1502/;
@@ -41,17 +41,17 @@ sub fit ($$) {
 	die "E: Unknown device type $device\n" unless defined $fitter;
 
 	unlink ("$path.jed");
-	system ($fitter, "$path.tt2", '-cupl', '-device', $device);
+	system ($fitter, "$path.tt2", '-cupl', '-device', $device, @opts);
 
 	return -e "$path.jed";
 }
 
-sub compile ($$) {
-	my ($path, $device) = @_;
+sub compile ($$;@) {
+	my ($path, $device, @opts) = @_;
 
 	return 0 if -e "$path.pld" and not cupl ($path);
 
-	return fit ($path, $device);
+	return fit ($path, $device, @opts);
 }
 
 1;
