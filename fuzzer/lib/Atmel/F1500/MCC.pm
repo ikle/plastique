@@ -17,6 +17,7 @@ our @ISA = qw (Exporter);
 
 our @EXPORT = qw (
 	mcc_read_jed
+	mcc_read_conf
 	mcc_alloc
 	mcc_load
 	mcc_save
@@ -65,6 +66,33 @@ sub mcc_read_jed ($) {
 	}
 
 	return \%data;
+}
+
+#
+# Reads a single LAB configuration table
+#
+sub mcc_read_conf ($$$$) {
+	my ($cols, $rows, $path, $lab) = @_;
+
+	my $conf = table_alloc ($cols, $rows, 0);  # todo: get default from jed
+	my $jed  = mcc_read_jed ($path);
+
+	return undef unless defined $jed->{$lab};
+
+	for (my $col = 0; $col < $cols; ++$col) {
+		next unless defined $jed->{$lab}{$col};
+
+		my @vec = split (//, $jed->{$lab}{$col});
+
+		die "E: Wrong size of LAB $lab MC Config $col\n"
+		unless scalar @vec == $rows;
+
+		for (my $row = 0; $row < $rows; ++$row) {
+			$conf->[$row][$col] = 1 if $vec[$row] != 0;
+		}
+	}
+
+	return $conf;
 }
 
 #
