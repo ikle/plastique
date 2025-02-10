@@ -16,7 +16,7 @@ use Atmel::F1502;
 
 my %conf = (
 	'cb'	=> \&pin_opt_sample,	# sample table generator	(req)
-	'name'	=> 'FAST',		# prefix name of source bits	(req)
+	'name'	=> '!SLOW',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
 	'count'	=> 16,			# number of source bits		(req)
