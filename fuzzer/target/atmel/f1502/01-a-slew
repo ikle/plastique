@@ -22,7 +22,7 @@ sub make_sample ($$$$) {
 	my ($o, $path, $index, $invert) = @_;
 
 	mkpath (dirname ($path));
-	copy ("$0-base.pld", "$path.pld") or die "E: Cannot copy base\n";
+	copy ($o->{head}, "$path.pld") or die "E: Cannot copy base\n";
 
 	open my $test, '>>', "$path.pld" or die "E: Cannot open test file\n";
 
@@ -65,6 +65,7 @@ my %conf = (
 	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
 
 	'path'	=> 'work/test',		# test files prefix
+	'head'	=> "$0-base.pld",	# PLD file base part
 	'dev'	=> 'P1502C44',		# target device for fitter
 	'opt'	=> 'output_fast',	# fitter option
 	'lab'	=> 'A',			# LAB name to test
