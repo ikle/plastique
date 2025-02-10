@@ -47,6 +47,16 @@ sub make_sample ($$$$) {
 	return compile ($path, $dev, '-strategy', $opt, '=', @a);
 }
 
+sub get_sample ($$$$) {
+	my ($o, $path, $index, $invert) = @_;
+	my $cols = $o->{cols};
+	my $rows = $o->{rows};
+	my $lab  = $o->{lab};
+
+	return undef unless make_sample ($o, $path, $index, $invert);
+	return mcc_read_conf ($cols, $rows, $path, $lab);
+}
+
 sub make_samples ($$$) {
 	my ($o, $path, $invert) = @_;
 	my $order = $o->{order};
@@ -56,11 +66,7 @@ sub make_samples ($$$) {
 	my $conf  = table_alloc ($cols, $rows, 0);
 
 	for (my $index = 0; $index < $order; ++$index) {
-		return undef unless make_sample ($o, $path, $index, $invert);
-
-		my $st = mcc_read_conf ($cols, $rows, $path, $lab);
-
-		die "E: Cannot find LAB $lab MC Config\n" unless defined $st;
+		my $st = get_sample ($o, $path, $index, $invert);
 
 		for (my $col = 0; $col < $cols; ++$col) {
 			for (my $row = 0; $row < $rows; ++$row) {
