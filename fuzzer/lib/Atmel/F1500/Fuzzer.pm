@@ -16,6 +16,7 @@ require Exporter;
 our @ISA = qw (Exporter);
 
 our @EXPORT = qw (
+	make_base
 	make_bit_map
 	pin_opt_sample
 );
@@ -29,15 +30,26 @@ use Atmel::F1500::Tools;
 use MAP::Fuzzer;
 
 #
+# Make PLD base, return opened file
+#
+sub make_base ($$) {
+	my ($path, $head) = @_;
+
+	mkpath (dirname ($path));
+	copy ($head, "$path.pld") or die "E: Cannot copy $head to $path.pld\n";
+
+	open my $test, '>>', "$path.pld" or die "E: Cannot open $path.pld file\n";
+
+	return $test;
+}
+
+#
 # Generate and compile pin option test
 #
 sub make_opt_sample ($$$) {
 	my ($o, $path, $vec) = @_;
 
-	mkpath (dirname ($path));
-	copy ($o->{head}, "$path.pld") or die "E: Cannot copy base\n";
-
-	open my $test, '>>', "$path.pld" or die "E: Cannot open test file\n";
+	my $test = make_base ($path, $o->{head});
 
 	my $count = $o->{count};
 	my $lab   = $o->{lab};
