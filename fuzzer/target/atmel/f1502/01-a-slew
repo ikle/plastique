@@ -10,10 +10,6 @@
 use strict;
 use warnings;
 
-use File::Basename	qw (dirname);
-use File::Copy		qw (copy);
-use File::Path		qw (mkpath);
-
 use Atmel::F1500::Fuzzer;
 use Atmel::F1500::MCC;
 use Atmel::F1502;
