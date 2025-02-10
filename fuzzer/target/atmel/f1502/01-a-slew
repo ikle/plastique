@@ -29,13 +29,16 @@ sub make_sample ($$$$) {
 	open my $test, '>>', "$path.pld" or die "E: Cannot open test file\n";
 
 	my $count = $o->{count};
+	my $lab   = $o->{lab};
 	my $dev   = $o->{dev};
 	my $opt   = $o->{opt};
+
+	my $base  = (ord ($lab) - ord ('A')) * $count + 1;
 	my $mask  = (1 << $index);
 	my @a;
 
 	for (my $i = 0; $i < $count; ++$i) {
-		my $n = $i + 1;
+		my $n = $base + $i;
 
 		push (@a, "P$n") if (($i & $mask) != 0 xor $invert);
 	}
