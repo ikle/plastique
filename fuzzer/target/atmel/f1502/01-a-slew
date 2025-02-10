@@ -14,47 +14,9 @@ use File::Basename	qw (dirname);
 use File::Copy		qw (copy);
 use File::Path		qw (mkpath);
 
+use Atmel::F1500::Fuzzer;
 use Atmel::F1500::MCC;
 use Atmel::F1502;
-use MAP::Fuzzer;
-
-sub make_opt_sample ($$$$) {
-	my ($o, $path, $index, $invert) = @_;
-
-	mkpath (dirname ($path));
-	copy ($o->{head}, "$path.pld") or die "E: Cannot copy base\n";
-
-	open my $test, '>>', "$path.pld" or die "E: Cannot open test file\n";
-
-	my $count = $o->{count};
-	my $lab   = $o->{lab};
-	my $dev   = $o->{dev};
-	my $opt   = $o->{opt};
-
-	my $base  = (ord ($lab) - ord ('A')) * $count + 1;
-	my $mask  = (1 << $index);
-	my @a;
-
-	for (my $i = 0; $i < $count; ++$i) {
-		my $n = $base + $i;
-
-		push (@a, "P$n") if (($i & $mask) != 0 xor $invert);
-	}
-
-	return compile ($path, $dev, '-strategy', $opt, '=', 'off') if scalar @a == 0;
-	return compile ($path, $dev, '-strategy', $opt, '=', @a);
-}
-
-sub pin_opt_sample ($$$) {
-	my ($o, $index, $invert) = @_;
-	my $path = $o->{path};
-	my $cols = $o->{cols};
-	my $rows = $o->{rows};
-	my $lab  = $o->{lab};
-
-	return undef unless make_opt_sample ($o, $path, $index, $invert);
-	return mcc_read_conf ($cols, $rows, $path, $lab);
-}
 
 my %conf = (
 	'cb'	=> \&pin_opt_sample,	# sample table generator	(req)
