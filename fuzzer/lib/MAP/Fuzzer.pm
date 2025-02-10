@@ -54,8 +54,8 @@ sub make_bit_samples ($$) {
 # my %conf = (
 #	'cb'	=> \&get_sample,	# sample table generator	(req)
 #	'name'	=> 'FAST',		# prefix name of source bits	(req)
-#	'cols'	=> 12,			# output table column count	(req)
-#	'rows'	=> 32,			# output table row count	(req)
+#	'cols'	=> 12,			# i/o table column count	(req)
+#	'rows'	=> 32,			# i/o table row count		(req)
 #	'count'	=> 16,			# number of source bits		(req)
 #	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
 #	...				# call back options
