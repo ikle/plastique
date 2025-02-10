@@ -73,31 +73,46 @@ sub make_samples ($$$) {
 }
 
 sub make_map ($$) {
-	my ($path, $lab) = @_;
+	my ($o, $path) = @_;
+	my $lab = $o->{lab};
 	my $pos = make_samples ($path, $lab, 0);
 	my $neg = make_samples ($path, $lab, 1);
 
 	return undef unless defined $pos and defined $neg;
 
-	my $map = mcc_alloc (12, 32);
-	my $mask = 0x1F;
+	my $cols  = $o->{cols};
+	my $rows  = $o->{rows};
+	my $map   = table_alloc ($cols, $rows, '-');
+	my $count = $o->{count};
+	my $mask  = ~(~0 << $o->{order});
+	my $name  = $o->{name};
 
-	for (my $row = 0; $row < 32; ++$row) {
-		for (my $col = 0; $col < 12; ++$col) {
+	for (my $row = 0; $row < $rows; ++$row) {
+		for (my $col = 0; $col < $cols; ++$col) {
 			my $P = $pos->[$row][$col];
 			my $N = $neg->[$row][$col];
 
 			next unless ($P & $mask) == (~$N & $mask);
 
-			$map->[$row][$col] = ($N < 16) ? "!FAST$N" : "FAST$P";
+			$map->[$row][$col] = ($N < $count) ? "!${name}$N" : "${name}$P";
 		}
 	}
 
 	return $map;
 }
 
+my %conf = (
+	'opt'	=> 'output_fast',	# fitter option
+	'name'	=> 'FAST',		# prefix name of source bits
+	'lab'	=> 'A',			# LAB name to test
+	'cols'	=> 12,			# output table column count
+	'rows'	=> 32,			# output table row count
+	'count'	=> 16,			# number of source bits
+	'order'	=> 5,			# ceil (log2 (count - 1)) + 1
+);
+
 my $o   = f1502_load ('db');
-my $mcc = make_map ($path, 'A');
+my $mcc = make_map (\%conf, $path);
 
 mcc_update ($o->{'mcc'}, $mcc) if defined $mcc;
 
