@@ -20,25 +20,28 @@ use CVS::Table;
 
 my $path = 'work/test';
 
-sub make_sample ($$$) {
-	my ($path, $index, $invert) = @_;
+sub make_sample ($$$$) {
+	my ($o, $path, $index, $invert) = @_;
 
 	mkpath (dirname ($path));
 	copy ("$0-base.pld", "$path.pld") or die "E: Cannot copy base\n";
 
 	open my $test, '>>', "$path.pld" or die "E: Cannot open test file\n";
 
-	my $mask = (1 << $index);
+	my $count = $o->{count};
+	my $dev   = $o->{dev};
+	my $opt   = $o->{opt};
+	my $mask  = (1 << $index);
 	my @a;
 
-	for (my $i = 0; $i < 16; ++$i) {
+	for (my $i = 0; $i < $count; ++$i) {
 		my $n = $i + 1;
 
 		push (@a, "P$n") if (($i & $mask) != 0 xor $invert);
 	}
 
-	return compile ($path, 'P1502C44', '-strategy', 'output_fast', '=', 'off') if scalar @a == 0;
-	return compile ($path, 'P1502C44', '-strategy', 'output_fast', '=', @a);
+	return compile ($path, $dev, '-strategy', $opt, '=', 'off') if scalar @a == 0;
+	return compile ($path, $dev, '-strategy', $opt, '=', @a);
 }
 
 sub make_samples ($$$) {
@@ -50,7 +53,7 @@ sub make_samples ($$$) {
 	my $conf  = table_alloc ($cols, $rows, 0);
 
 	for (my $index = 0; $index < $order; ++$index) {
-		return undef unless make_sample ($path, $index, $invert);
+		return undef unless make_sample ($o, $path, $index, $invert);
 
 		my $mcs  = mcc_read_jed ($path);
 		my $mask = (1 << $index);
@@ -65,7 +68,7 @@ sub make_samples ($$$) {
 			my @vec = split (//, $mcs->{$lab}{$col});
 
 			die "E: Wrong size of LAB $lab MC Config $col\n"
-			unless scalar @vec == 32;
+			unless scalar @vec == $rows;
 
 			for (my $row = 0; $row < $rows; ++$row) {
 				$conf->[$row][$col] += $mask if $vec[$row] != 0;
@@ -106,6 +109,7 @@ sub make_map ($$) {
 }
 
 my %conf = (
+	'dev'	=> 'P1502C44',		# target device for fitter
 	'opt'	=> 'output_fast',	# fitter option
 	'name'	=> 'FAST',		# prefix name of source bits
 	'lab'	=> 'A',			# LAB name to test
