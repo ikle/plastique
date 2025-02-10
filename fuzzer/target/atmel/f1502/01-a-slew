@@ -65,12 +65,12 @@ sub make_samples ($$$) {
 	my $rows  = $o->{rows};
 	my $conf  = table_alloc ($cols, $rows, 0);
 
-	for (my $index = 0; $index < $order; ++$index) {
-		my $st = $cb->($o, $path, $index, $invert);
+	for (my $i = 0; $i < $order; ++$i) {
+		my $st = $cb->($o, $path, $i, $invert);
 
 		for (my $col = 0; $col < $cols; ++$col) {
 			for (my $row = 0; $row < $rows; ++$row) {
-				$conf->[$row][$col] += $st->[$row][$col] << $index;
+				$conf->[$row][$col] += $st->[$row][$col] << $i;
 			}
 		}
 	}
