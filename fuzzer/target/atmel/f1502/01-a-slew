@@ -42,10 +42,14 @@ sub make_sample ($$$) {
 }
 
 sub make_samples ($$$) {
-	my ($path, $lab, $invert) = @_;
-	my $conf = table_alloc (12, 32, 0);
+	my ($o, $path, $invert) = @_;
+	my $order = $o->{order};
+	my $lab   = $o->{lab};
+	my $cols  = $o->{cols};
+	my $rows  = $o->{rows};
+	my $conf  = table_alloc ($cols, $rows, 0);
 
-	for (my $index = 0; $index < 5; ++$index) {
+	for (my $index = 0; $index < $order; ++$index) {
 		return undef unless make_sample ($path, $index, $invert);
 
 		my $mcs  = mcc_read_jed ($path);
@@ -54,7 +58,7 @@ sub make_samples ($$$) {
 		die "E: Cannot find LAB $lab MC Config\n"
 		unless defined $mcs->{$lab};
 
-		for (my $col = 0; $col < 12; ++$col) {
+		for (my $col = 0; $col < $cols; ++$col) {
 			die "E: Cannot find LAB $lab MC Config $col\n"
 			unless defined $mcs->{$lab}{$col};
 
@@ -63,7 +67,7 @@ sub make_samples ($$$) {
 			die "E: Wrong size of LAB $lab MC Config $col\n"
 			unless scalar @vec == 32;
 
-			for (my $row = 0; $row < 32; ++$row) {
+			for (my $row = 0; $row < $rows; ++$row) {
 				$conf->[$row][$col] += $mask if $vec[$row] != 0;
 			}
 		}
@@ -75,8 +79,8 @@ sub make_samples ($$$) {
 sub make_map ($$) {
 	my ($o, $path) = @_;
 	my $lab = $o->{lab};
-	my $pos = make_samples ($path, $lab, 0);
-	my $neg = make_samples ($path, $lab, 1);
+	my $pos = make_samples ($o, $path, 0);
+	my $neg = make_samples ($o, $path, 1);
 
 	return undef unless defined $pos and defined $neg;
 
