@@ -18,7 +18,7 @@ use Atmel::F1500::MCC;
 use Atmel::F1502;
 use MAP::Fuzzer;
 
-sub make_sample ($$$$) {
+sub make_opt_sample ($$$$) {
 	my ($o, $path, $index, $invert) = @_;
 
 	mkpath (dirname ($path));
@@ -45,19 +45,19 @@ sub make_sample ($$$$) {
 	return compile ($path, $dev, '-strategy', $opt, '=', @a);
 }
 
-sub get_sample ($$$) {
+sub pin_opt_sample ($$$) {
 	my ($o, $index, $invert) = @_;
 	my $path = $o->{path};
 	my $cols = $o->{cols};
 	my $rows = $o->{rows};
 	my $lab  = $o->{lab};
 
-	return undef unless make_sample ($o, $path, $index, $invert);
+	return undef unless make_opt_sample ($o, $path, $index, $invert);
 	return mcc_read_conf ($cols, $rows, $path, $lab);
 }
 
 my %conf = (
-	'cb'	=> \&get_sample,	# sample table generator	(req)
+	'cb'	=> \&pin_opt_sample,	# sample table generator	(req)
 	'name'	=> 'FAST',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
