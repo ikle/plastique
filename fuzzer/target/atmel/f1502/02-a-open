@@ -1,0 +1,39 @@
+#!/usr/bin/perl -Ilib
+#
+# Fuzzer script to detect Atmel ATF1502 Open Collector Output configuration
+#
+# Copyright (c) 2025 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+use strict;
+use warnings;
+
+use Atmel::F1500::Fuzzer;
+use Atmel::F1500::MCC;
+use Atmel::F1502;
+
+my %conf = (
+	'cb'	=> \&pin_opt_sample,	# sample table generator	(req)
+	'name'	=> 'OPEN',		# prefix name of source bits	(req)
+	'cols'	=> 12,			# output table column count	(req)
+	'rows'	=> 32,			# output table row count	(req)
+	'count'	=> 16,			# number of source bits		(req)
+	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
+
+	'path'	=> 'work/test',		# test files prefix
+	'head'	=> "$0-base.pld",	# PLD file base part
+	'dev'	=> 'P1502C44',		# target device for fitter
+	'opt'	=> 'open_collector',	# fitter option
+	'lab'	=> 'A',			# LAB name to test
+);
+
+my $o   = f1502_load ('db');
+my $mcc = make_bit_map (\%conf);
+
+mcc_update ($o->{'mcc'}, $mcc) if defined $mcc;
+
+f1502_report ($o);
+f1502_save   ($o, 'db');
+
