@@ -21,8 +21,8 @@ Pin [44, 43, 1, 2] = [OE1, GCLK1, GCLR, OE2];	/* Input-only pins	*/
 Pin [4..9,   11..14, 16..21] = [P1..P16];	/* MC1..MC16  I/O pins	*/
 Pin [41..36, 34..31, 29..24] = [P17..P32];	/* MC17..MC32 I/O pins	*/
 
-/* LAB A inputs registered and passed to LAB B outputs */
+/* LAB B inputs registered and passed to LAB A outputs */
 
-[P17..P32].d  = [P1..P16];
-[P17..P32].ck = GCLK1;
+[P1..P16].d  = [P17..P32];
+[P1..P16].ck = GCLK1;
 
