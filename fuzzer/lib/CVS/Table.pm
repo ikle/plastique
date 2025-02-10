@@ -20,6 +20,7 @@ our @EXPORT = qw (
 	table_load
 	table_save
 	table_report
+	table_update
 );
 
 use File::Basename	qw (dirname);
@@ -108,6 +109,35 @@ sub table_report ($$;$$) {
 
 	print "\ncoverage = $fill / " . ($rows * $cols) . "\n";
 	print $suffix if defined $suffix;
+}
+
+#
+# Updates table with another one
+#
+sub table_update ($$$$) {
+	my ($table, $other, $default, $name) = @_;
+	my $rows = scalar @{$table};
+	my $cols = scalar @{$table->[0]};
+
+	die "E: Too few rows in new $name\n"     if scalar @{$other} < $rows;
+	die "E: Too many rows in new $name\n"    if scalar @{$other} > $rows;
+
+	die "E: Too few columns in new $name\n"  if scalar @{$other->[0]} < $cols;
+	die "E: Too many columns in new $name\n" if scalar @{$other->[0]} > $cols;
+
+	for (my $row = 0; $row < $rows; ++$row) {
+		for (my $col = 0; $col < $cols; ++$col) {
+			my $old = $table->[$row][$col];
+			my $new = $other->[$row][$col];
+
+			next if ($new eq $default or $old eq $new);
+
+			die "E: Mapping conflict for $name at ($col, $row)\n"
+			unless ($old eq $default);
+
+			$table->[$row][$col] = $new;
+		}
+	}
 }
 
 1;
