@@ -70,5 +70,5 @@ my $mcc = make_bit_map (\%conf);
 mcc_update_add ($o->{'mcc'}, $mcc) if defined $mcc;
 
 f1502_report ($o);
-#f1502_save   ($o, 'db');
+f1502_save   ($o, 'db');
 
