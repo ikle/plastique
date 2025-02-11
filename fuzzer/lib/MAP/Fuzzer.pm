@@ -27,13 +27,17 @@ use CVS::Table;
 sub make_bit_vector ($$$) {
 	my ($count, $index, $invert) = @_;
 	my $mask  = (1 << $index);
-	my @vec;
+	my @pos;
+	my @neg;
 
 	for (my $i = 0; $i < $count; ++$i) {
-		push (@vec, $i) if (($i & $mask) != 0 xor $invert);
+		my $cond = (($i & $mask) != 0 xor $invert);
+
+		push (@pos, $i) if     $cond;
+		push (@neg, $i) unless $cond;
 	}
 
-	return \@vec;
+	return (\@pos, \@neg);
 }
 
 #
@@ -49,8 +53,8 @@ sub make_bit_samples ($$) {
 	my $conf  = table_alloc ($cols, $rows, 0);
 
 	for (my $i = 0; $i < $order; ++$i) {
-		my $vec = make_bit_vector ($count, $i, $invert);
-		my $st  = $cb->($o, $vec);
+		my ($pos, $neg) = make_bit_vector ($count, $i, $invert);
+		my $st = $cb->($o, $pos, $neg);
 
 		return undef unless defined $st;
 

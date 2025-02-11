@@ -46,8 +46,8 @@ sub make_base ($$) {
 #
 # Generate and compile pin option test
 #
-sub make_opt_sample ($$$) {
-	my ($o, $path, $vec) = @_;
+sub make_opt_sample ($$$$) {
+	my ($o, $path, $pos, $neg) = @_;
 	my $count = $o->{count};
 	my $lab   = $o->{lab};
 	my $dev   = $o->{dev};
@@ -56,7 +56,7 @@ sub make_opt_sample ($$$) {
 	my $test  = make_base ($path, $o->{head});
 	my $base  = (ord ($lab) - ord ('A')) * $count + 1;
 
-	my @a = map { 'P' . ($base + $_) } @{$vec};
+	my @a = map { 'P' . ($base + $_) } @{$pos};
 
 	return compile ($path, $dev, '-strategy', $opt, '=', 'off') if scalar @a == 0;
 	return compile ($path, $dev, '-strategy', $opt, '=', @a);
@@ -73,14 +73,14 @@ sub make_opt_sample ($$$) {
 #	'lab'	=> 'A',			# LAB name to test
 #);
 #
-sub pin_opt_sample ($$) {
-	my ($o, $vec) = @_;
+sub pin_opt_sample ($$$) {
+	my ($o, $pos, $neg) = @_;
 	my $path = $o->{path};
 	my $cols = $o->{cols};
 	my $rows = $o->{rows};
 	my $lab  = $o->{lab};
 
-	return undef unless make_opt_sample ($o, $path, $vec);
+	return undef unless make_opt_sample ($o, $path, $pos, $neg);
 	return mcc_read_conf ($cols, $rows, $path, $lab);
 }
 
