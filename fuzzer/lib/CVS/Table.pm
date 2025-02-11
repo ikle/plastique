@@ -21,6 +21,7 @@ our @EXPORT = qw (
 	table_save
 	table_report
 	table_update
+	table_update_add
 );
 
 use File::Basename	qw (dirname);
@@ -134,6 +135,33 @@ sub table_update ($$$$) {
 
 			die "E: Mapping conflict for $name at ($col, $row)\n"
 			unless ($old eq $default);
+
+			$table->[$row][$col] = $new;
+		}
+	}
+}
+
+#
+# Updates table cells with another one unless cell defined already
+#
+sub table_update_add ($$$$) {
+	my ($table, $other, $default, $name) = @_;
+	my $rows = scalar @{$table};
+	my $cols = scalar @{$table->[0]};
+
+	die "E: Too few rows in new $name\n"     if scalar @{$other} < $rows;
+	die "E: Too many rows in new $name\n"    if scalar @{$other} > $rows;
+
+	die "E: Too few columns in new $name\n"  if scalar @{$other->[0]} < $cols;
+	die "E: Too many columns in new $name\n" if scalar @{$other->[0]} > $cols;
+
+	for (my $row = 0; $row < $rows; ++$row) {
+		for (my $col = 0; $col < $cols; ++$col) {
+			my $old = $table->[$row][$col];
+			my $new = $other->[$row][$col];
+
+			next if ($new eq $default or $old eq $new);
+			next unless ($old eq $default);
 
 			$table->[$row][$col] = $new;
 		}
