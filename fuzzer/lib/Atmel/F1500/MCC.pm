@@ -24,6 +24,7 @@ our @EXPORT = qw (
 	mcc_report
 	mcc_update
 	mcc_update_add
+	mcc_intersect
 );
 
 use CVS::Table;
@@ -151,6 +152,15 @@ sub mcc_update_add ($$) {
 	my ($table, $other) = @_;
 
 	return table_update_add ($table, $other, '-', 'MC Config');
+}
+
+#
+# Returns intersection of MC config tables
+#
+sub mcc_intersect ($$) {
+	my ($A, $B) = @_;
+
+	return table_intersect ($A, $B, '-', 'MC Config');
 }
 
 1;
