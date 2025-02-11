@@ -1,0 +1,72 @@
+#!/usr/bin/perl -Ilib
+#
+# Fuzzer script to detect Atmel ATF1502 MC Output Enable configuration
+#
+# Copyright (c) 2025 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+use strict;
+use warnings;
+
+use Atmel::F1500::Fuzzer;
+use Atmel::F1500::MCC;
+use Atmel::F1502;
+
+sub make_sample ($$$) {
+	my ($o, $pos, $neg) = @_;
+	my $path = $o->{path};
+	my $dev  = $o->{dev};
+	my $cols = $o->{cols};
+	my $rows = $o->{rows};
+	my $lab  = $o->{lab};
+	my $on   = $o->{on};
+
+	my $test = make_base ($path, $o->{head});
+
+	for my $i (@{$pos}) {
+		my $n = 1 + $i;		# LAB A only at a moment
+
+		print $test "P$n.oe = $on;\n";
+	}
+
+	return undef unless compile ($path, $dev);
+
+	f1502_update ($o->{conf}, $path);
+
+	return mcc_read_conf ($cols, $rows, $path, $lab);
+}
+
+my $o = f1502_load ('db');
+
+my %conf = (
+	'cb'	=> \&make_sample,	# sample table generator	(req)
+	'name'	=> '!OE_',		# prefix name of source bits	(req)
+	'cols'	=> 12,			# output table column count	(req)
+	'rows'	=> 32,			# output table row count	(req)
+	'count'	=> 16,			# number of source bits		(req)
+	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
+
+	'path'	=> 'work/test',		# test files prefix
+	'head'	=> "$0-base.pld",	# PLD file base part
+	'dev'	=> 'P1502C44',		# target device for fitter
+	'lab'	=> 'A',			# LAB name to test
+	'conf'	=> $o,			# configuration database
+
+	'on'	=> 'PTOE',		# OE for positive bits
+);
+
+#
+# Proposition;
+#
+# oe   = oe-mux (..., PTOE | OE)	-- OE ? 1 : PTOE
+# PTOE = PT5				-- direct connection
+
+my $mcc = make_bit_map (\%conf);
+
+mcc_update ($o->{'mcc'}, $mcc) if defined $mcc;
+
+f1502_report ($o);
+f1502_save   ($o, 'db');
+
