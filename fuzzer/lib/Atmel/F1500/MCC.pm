@@ -23,6 +23,7 @@ our @EXPORT = qw (
 	mcc_save
 	mcc_report
 	mcc_update
+	mcc_update_add
 );
 
 use CVS::Table;
@@ -141,6 +142,15 @@ sub mcc_update ($$) {
 	my ($table, $other) = @_;
 
 	return table_update ($table, $other, '-', 'MC Config');
+}
+
+#
+# Updates MC configuration mapping cells unless cell defined already
+#
+sub mcc_update_add ($$) {
+	my ($table, $other) = @_;
+
+	return table_update_add ($table, $other, '-', 'MC Config');
 }
 
 1;
