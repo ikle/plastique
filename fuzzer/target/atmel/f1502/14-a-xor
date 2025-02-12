@@ -1,0 +1,181 @@
+#!/usr/bin/perl -Ilib
+#
+# Fuzzer script to detect Atmel ATF1502 MC XOR configuration
+#
+# Copyright (c) 2025 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+use strict;
+use warnings;
+
+use Atmel::F1500::Fuzzer;
+use Atmel::F1500::MCC;
+use Atmel::F1502;
+
+sub make_sample_neg ($$$) {
+	my ($o, $pos, $neg) = @_;
+	my $path = $o->{path};
+	my $dev  = $o->{dev};
+	my $cols = $o->{cols};
+	my $rows = $o->{rows};
+	my $lab  = $o->{lab};
+
+	my $test = make_base ($path, $o->{head});
+
+	print $test "[P1..P16].le = GCK2;\n";
+	print $test "[P1..P16].ar = GCLR;\n";
+
+	for my $i (@{$pos}) {
+		my ($n, $m) = (1 + $i, 17 + $i);
+
+		print $test "P$n.l = !(P$m & OE1);\n";
+	}
+
+	for my $i (@{$neg}) {
+		my ($n, $m) = (1 + $i, 17 + $i);
+
+		print $test "P$n.l = (P$m & OE1);\n";
+	}
+
+	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
+	return mcc_read_conf ($cols, $rows, $path, $lab);
+}
+
+sub make_sample_xor ($$$) {
+	my ($o, $pos, $neg) = @_;
+	my $path = $o->{path};
+	my $dev  = $o->{dev};
+	my $cols = $o->{cols};
+	my $rows = $o->{rows};
+	my $lab  = $o->{lab};
+
+	my $test = make_base ($path, $o->{head});
+
+	print $test "[P1..P16].le = GCK2;\n";
+	print $test "[P1..P16].ar = GCLR;\n";
+
+	for my $i (@{$pos}) {
+		my ($n, $m) = (1 + $i, 17 + $i);
+
+		print $test "P$n.l = (P$m & OE1) \$ GCK1;\n";
+	}
+
+	for my $i (@{$neg}) {
+		my ($n, $m) = (1 + $i, 17 + $i);
+
+		print $test "P$n.l = (P$m & OE1);\n";
+	}
+
+	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
+	return mcc_read_conf ($cols, $rows, $path, $lab);
+}
+
+sub make_sample_x ($$$) {
+	my ($o, $pos, $neg) = @_;
+	my $path = $o->{path};
+	my $dev  = $o->{dev};
+	my $cols = $o->{cols};
+	my $rows = $o->{rows};
+	my $lab  = $o->{lab};
+
+	my $test = make_base ($path, $o->{head});
+
+	for my $i (@{$pos}) {
+		my ($n, $m) = (1 + $i, 17 + $i);
+
+		print $test "P$n.t  = OE1;\n";
+		print $test "P$n.ck = GCK2;\n";
+	}
+
+	for my $i (@{$neg}) {
+		my ($n, $m) = (1 + $i, 17 + $i);
+
+		print $test "P$n.d  = OE1;\n";
+		print $test "P$n.ck = GCK2;\n";
+	}
+
+	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
+	return mcc_read_conf ($cols, $rows, $path, $lab);
+}
+
+#
+# NEG -- Negate OR output
+#
+# Bit at column 1, middle, active-high
+#
+my %conf_neg = (
+	'cb'	=> \&make_sample_neg,	# sample table generator	(req)
+	'name'	=> 'NEG_',		# prefix name of source bits	(req)
+	'cols'	=> 12,			# output table column count	(req)
+	'rows'	=> 32,			# output table row count	(req)
+	'count'	=> 16,			# number of source bits		(req)
+	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
+
+	'path'	=> 'work/test',		# test files prefix
+	'head'	=> "$0-base.pld",	# PLD file base part
+	'dev'	=> 'P1502C44',		# target device for fitter
+	'lab'	=> 'A',			# LAB name to test
+);
+
+#
+# Do XOR between OR-output and !PT2
+#
+# Bit at column 1, middle, active-high -- NEG
+# Bit at column 3, outer,  active-high -- XOR
+#
+# NEG = 1
+# y   = x ^ NEG ^ (XOR & !PT2) = x ^ 1 ^ !PT2 = x ^ PT2
+#
+my %conf_xor = (
+	'cb'	=> \&make_sample_xor,	# sample table generator	(req)
+	'name'	=> 'XOR_',		# prefix name of source bits	(req)
+	'cols'	=> 12,			# output table column count	(req)
+	'rows'	=> 32,			# output table row count	(req)
+	'count'	=> 16,			# number of source bits		(req)
+	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
+
+	'path'	=> 'work/test',		# test files prefix
+	'head'	=> "$0-base.pld",	# PLD file base part
+	'dev'	=> 'P1502C44',		# target device for fitter
+	'lab'	=> 'A',			# LAB name to test
+);
+
+#
+# T-Flip-Flop, TFF selects register output as upper input of 2XOR gate
+#
+# Bit at column 3, middle, active-high
+#
+# NEG = 0
+# XOR = 0 ?
+# FF  = 1						-- flip-flop mode
+# y   = x ^ NEG ^ (XOR & !PT) ^ (TFF & q) = x ^ q	-- toggle if x
+#
+my %conf_tff = (
+	'cb'	=> \&make_sample_x,	# sample table generator	(req)
+	'name'	=> 'TFF_',		# prefix name of source bits	(req)
+	'cols'	=> 12,			# output table column count	(req)
+	'rows'	=> 32,			# output table row count	(req)
+	'count'	=> 16,			# number of source bits		(req)
+	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
+
+	'path'	=> 'work/test',		# test files prefix
+	'head'	=> "$0-base.pld",	# PLD file base part
+	'dev'	=> 'P1502C44',		# target device for fitter
+	'lab'	=> 'A',			# LAB name to test
+);
+
+my $o = f1502_load ('db');
+
+my $mcc_neg = make_bit_map (\%conf_neg);
+my $mcc_xor = make_bit_map (\%conf_xor);
+my $mcc_tff = make_bit_map (\%conf_tff);
+
+mcc_update     ($o->{'mcc'}, $mcc_neg) if defined $mcc_neg;
+mcc_update_add ($o->{'mcc'}, $mcc_xor) if defined $mcc_xor;
+mcc_update     ($o->{'mcc'}, $mcc_tff) if defined $mcc_tff;
+
+f1502_report ($o);
+f1502_save   ($o, 'db');
+
