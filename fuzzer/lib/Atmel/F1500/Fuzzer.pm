@@ -48,6 +48,7 @@ sub make_base ($$) {
 #
 sub make_opt_sample ($$$$) {
 	my ($o, $path, $pos, $neg) = @_;
+	my $start = defined $o->{start} ? $o->{start} : 0;
 	my $count = $o->{count};
 	my $lab   = $o->{lab};
 	my $dev   = $o->{dev};
@@ -56,7 +57,7 @@ sub make_opt_sample ($$$$) {
 	my $test  = make_base ($path, $o->{head});
 	my $base  = (ord ($lab) - ord ('A')) * $count + 1;
 
-	my @a = map { 'P' . ($base + $_) } @{$pos};
+	my @a = map { 'P' . ($base + $_) } grep { $_ >= $start } @{$pos};
 
 	return compile ($path, $dev, '-strategy', $opt, '=', 'off') if scalar @a == 0;
 	return compile ($path, $dev, '-strategy', $opt, '=', @a);
