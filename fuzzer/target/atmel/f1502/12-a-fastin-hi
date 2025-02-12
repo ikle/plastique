@@ -1,0 +1,46 @@
+#!/usr/bin/perl -Ilib
+#
+# Fuzzer script to detect Atmel ATF1502 Fast Input Latch configuration
+#
+# Copyright (c) 2025 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+use strict;
+use warnings;
+
+use Atmel::F1500::Fuzzer;
+use Atmel::F1500::MCC;
+use Atmel::F1502;
+
+my $o = f1502_load ('db');
+
+#
+# Bit at column 5, middle, active-high
+# Bit at column 8, middle, active-low  -- BF = !FI -- feedback registered
+# Bit at column 9, outer,  active-low  -- OF = !FI -- output registered, useless
+#
+my %conf = (
+	'cb'	=> \&pin_opt_sample,	# sample table generator	(req)
+	'name'	=> 'FI_',		# prefix name of source bits	(req)
+	'cols'	=> 12,			# output table column count	(req)
+	'rows'	=> 32,			# output table row count	(req)
+	'start'	=> 8,			# start of iteration
+	'count'	=> 16,			# number of source bits		(req)
+	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
+
+	'path'	=> 'work/test',		# test files prefix
+	'head'	=> "$0-base.pld",	# PLD file base part
+	'dev'	=> 'P1502C44',		# target device for fitter
+	'opt'	=> 'fast_inlatch',	# fitter option
+	'lab'	=> 'A',			# LAB name to test
+);
+
+my $mcc = make_bit_map (\%conf);
+
+mcc_update_add ($o->{'mcc'}, $mcc) if defined $mcc;
+
+f1502_report ($o);
+f1502_save   ($o, 'db');
+
