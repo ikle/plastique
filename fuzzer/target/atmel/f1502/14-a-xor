@@ -120,17 +120,17 @@ my %conf_neg = (
 );
 
 #
-# Do XOR between OR-output and !PT2
+# Do XOR between OR-output and !PT1
 #
 # Bit at column 1, middle, active-high -- NEG
-# Bit at column 3, outer,  active-high -- XOR
+# Bit at column 3, outer,  active-high -- PM1
 #
 # NEG = 1
-# y   = x ^ NEG ^ (XOR & !PT2) = x ^ 1 ^ !PT2 = x ^ PT2
+# y   = x ^ NEG ^ (XOR & !PT1) = x ^ 1 ^ !PT1 = x ^ PT1
 #
 my %conf_xor = (
 	'cb'	=> \&make_sample_xor,	# sample table generator	(req)
-	'name'	=> 'XOR_',		# prefix name of source bits	(req)
+	'name'	=> 'PM1_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
 	'count'	=> 16,			# number of source bits		(req)
@@ -169,12 +169,10 @@ my %conf_tff = (
 my $o = f1502_load ('db');
 
 my $mcc_neg = make_bit_map (\%conf_neg);
-my $mcc_xor = make_bit_map (\%conf_xor);
 my $mcc_tff = make_bit_map (\%conf_tff);
 
-mcc_update     ($o->{'mcc'}, $mcc_neg) if defined $mcc_neg;
-mcc_update_add ($o->{'mcc'}, $mcc_xor) if defined $mcc_xor;
-mcc_update     ($o->{'mcc'}, $mcc_tff) if defined $mcc_tff;
+mcc_update ($o->{'mcc'}, $mcc_neg) if defined $mcc_neg;
+mcc_update ($o->{'mcc'}, $mcc_tff) if defined $mcc_tff;
 
 f1502_report ($o);
 f1502_save   ($o, 'db');

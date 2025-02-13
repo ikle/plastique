@@ -48,11 +48,13 @@ sub make_sample ($$$) {
 my $o = f1502_load ('db');
 
 #
-# Nothing changed in MC config, PT2 for OR enabled by default?
+# PM1 -- Mask-out PT1 -- disable for OR/NOR, enable for XNOR/XOR
 #
-my %conf_2 = (
+# Bit at column 3, outer,  active-high
+#
+my %conf_pm1 = (
 	'cb'	=> \&make_sample,	# sample table generator	(req)
-	'name'	=> 'PE2_',		# prefix name of source bits	(req)
+	'name'	=> 'PM1_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
 	'count'	=> 16,			# number of source bits		(req)
@@ -64,8 +66,8 @@ my %conf_2 = (
 	'lab'	=> 'A',			# LAB name to test
 	'conf'	=> $o,			# configuration database
 
-	'on'	=> 'S1 # S2',		# OE for positive bits
-	'off'	=> 'S1',		# OE for negative bits
+	'on'	=> '  (S1 # S3) $ S2',	# for positive bits, PT1 = S3
+	'off'	=> '!((S1 # S3) # S2)',	# for negative bits
 );
 
 #
@@ -141,10 +143,12 @@ my %conf_pm5 = (
 # Core tests
 #
 
+my $mcc_pm1 = make_bit_map (\%conf_pm1);
 my $mcc_pm3 = make_bit_map (\%conf_pm3);
 my $mcc_pm4 = make_bit_map (\%conf_pm4);
 my $mcc_pm5 = make_bit_map (\%conf_pm5);
 
+mcc_update ($o->{'mcc'}, $mcc_pm1) if defined $mcc_pm1;
 mcc_update ($o->{'mcc'}, $mcc_pm3) if defined $mcc_pm3;
 mcc_update ($o->{'mcc'}, $mcc_pm4) if defined $mcc_pm4;
 mcc_update ($o->{'mcc'}, $mcc_pm5) if defined $mcc_pm5;

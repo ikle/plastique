@@ -9,6 +9,7 @@ Location  Saint Petersburg;
 Device    f1502plcc44;
 
 Property Atmel {JTAG off};
+Property Atmel {XOR_Synthesis on};
 
 /*
 Pin [ 3,15,23,35] = Vcc;
@@ -23,8 +24,8 @@ Pin [41..36, 34..31, 29..24] = [GCK3,P18..P32];	/* MC17..MC32 I/O pins	*/
 /* OE1 + LAB B inputs registered and passed to LAB A outputs */
 
 S1 = OE1 & P18;
-S2 = P19 & P20;
-S3 = P21 & P22;
+S2 = P19 & P20 & P27;
+S3 = P21 & P22 & P28 & P29;
 S4 = P23 & P24;
 S5 = P25 & P26;
 
