@@ -72,7 +72,7 @@ sub make_sample_xor ($$$) {
 	return mcc_read_conf ($cols, $rows, $path, $lab);
 }
 
-sub make_sample_x ($$$) {
+sub make_sample_tff ($$$) {
 	my ($o, $pos, $neg) = @_;
 	my $path = $o->{path};
 	my $dev  = $o->{dev};
@@ -153,7 +153,7 @@ my %conf_xor = (
 # y   = x ^ NEG ^ (XOR & !PT) ^ (TFF & q) = x ^ q	-- toggle if x
 #
 my %conf_tff = (
-	'cb'	=> \&make_sample_x,	# sample table generator	(req)
+	'cb'	=> \&make_sample_tff,	# sample table generator	(req)
 	'name'	=> 'TFF_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
