@@ -69,11 +69,13 @@ my %conf_2 = (
 );
 
 #
-# One bit, column 0, outer, active-zero: PT3 disabled for OR, enabled for AR?
+# PM3 -- Mask-out PT3 -- disable for OR, enable for PAR
 #
-my %conf_3 = (
+# Bit at column 0, outer, active-high
+#
+my %conf_pm3 = (
 	'cb'	=> \&make_sample,	# sample table generator	(req)
-	'name'	=> 'PAR_',		# prefix name of source bits	(req)
+	'name'	=> 'PM3_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
 	'count'	=> 16,			# number of source bits		(req)
@@ -139,11 +141,11 @@ my %conf_pm5 = (
 # Core tests
 #
 
-my $mcc_3 = make_bit_map (\%conf_3);
+my $mcc_pm3 = make_bit_map (\%conf_pm3);
 my $mcc_pm4 = make_bit_map (\%conf_pm4);
 my $mcc_pm5 = make_bit_map (\%conf_pm5);
 
-mcc_update ($o->{'mcc'}, $mcc_3) if defined $mcc_3;
+mcc_update ($o->{'mcc'}, $mcc_pm3) if defined $mcc_pm3;
 mcc_update ($o->{'mcc'}, $mcc_pm4) if defined $mcc_pm4;
 mcc_update ($o->{'mcc'}, $mcc_pm5) if defined $mcc_pm5;
 
