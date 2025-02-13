@@ -112,11 +112,13 @@ my %conf_4 = (
 );
 
 #
-# fitter over optimizes...
+# PM5 -- Mask-out PT5 -- disable for OR, enable for PAR/POE
 #
-my %conf_5 = (
+# Bit at column 1, outer, active-high
+#
+my %conf_pm5 = (
 	'cb'	=> \&make_sample,	# sample table generator	(req)
-	'name'	=> 'PE5_',		# prefix name of source bits	(req)
+	'name'	=> 'PM5_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
 	'count'	=> 16,			# number of source bits		(req)
@@ -128,8 +130,8 @@ my %conf_5 = (
 	'lab'	=> 'A',			# LAB name to test
 	'conf'	=> $o,			# configuration database
 
-	'on'	=> 'S1 # S2 # S3 # S4 $ S5',	# OE for positive bits
-	'off'	=> 'S1 # S2 # S3 # S4',		# OE for negative bits
+	'on'	=> 'S1 # S2 # S3 # S4',		# OE for positive bits
+	'off'	=> 'S1 # S2 # S3 # S4 # S5',	# OE for negative bits
 );
 
 #
@@ -138,9 +140,11 @@ my %conf_5 = (
 
 my $mcc_3 = make_bit_map (\%conf_3);
 my $mcc_4 = make_bit_map (\%conf_4);
+my $mcc_pm5 = make_bit_map (\%conf_pm5);
 
 mcc_update ($o->{'mcc'}, $mcc_3) if defined $mcc_3;
 mcc_update ($o->{'mcc'}, $mcc_4) if defined $mcc_4;
+mcc_update ($o->{'mcc'}, $mcc_pm5) if defined $mcc_pm5;
 
 f1502_report ($o);
 f1502_save   ($o, 'db');
