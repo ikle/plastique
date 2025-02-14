@@ -14,99 +14,13 @@ use Atmel::F1500::Fuzzer;
 use Atmel::F1500::MCC;
 use Atmel::F1502;
 
-sub make_sample_neg ($$$) {
-	my ($o, $pos, $neg) = @_;
-	my $path = $o->{path};
-	my $dev  = $o->{dev};
-	my $cols = $o->{cols};
-	my $rows = $o->{rows};
-	my $lab  = $o->{lab};
-
-	my $test = make_base ($path, $o->{head});
-
-	print $test "[P1..P16].le = GCK2;\n";
-	print $test "[P1..P16].ar = GCLR;\n";
-
-	for my $i (@{$pos}) {
-		my ($n, $m) = (1 + $i, 17 + $i);
-
-		print $test "P$n.l = !(P$m & OE1);\n";
-	}
-
-	for my $i (@{$neg}) {
-		my ($n, $m) = (1 + $i, 17 + $i);
-
-		print $test "P$n.l = (P$m & OE1);\n";
-	}
-
-	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
-	return mcc_read_conf ($cols, $rows, $path, $lab);
-}
-
-sub make_sample_xor ($$$) {
-	my ($o, $pos, $neg) = @_;
-	my $path = $o->{path};
-	my $dev  = $o->{dev};
-	my $cols = $o->{cols};
-	my $rows = $o->{rows};
-	my $lab  = $o->{lab};
-
-	my $test = make_base ($path, $o->{head});
-
-	print $test "[P1..P16].le = GCK2;\n";
-	print $test "[P1..P16].ar = GCLR;\n";
-
-	for my $i (@{$pos}) {
-		my ($n, $m) = (1 + $i, 17 + $i);
-
-		print $test "P$n.l = (P$m & OE1) \$ GCK1;\n";
-	}
-
-	for my $i (@{$neg}) {
-		my ($n, $m) = (1 + $i, 17 + $i);
-
-		print $test "P$n.l = (P$m & OE1);\n";
-	}
-
-	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
-	return mcc_read_conf ($cols, $rows, $path, $lab);
-}
-
-sub make_sample_tff ($$$) {
-	my ($o, $pos, $neg) = @_;
-	my $path = $o->{path};
-	my $dev  = $o->{dev};
-	my $cols = $o->{cols};
-	my $rows = $o->{rows};
-	my $lab  = $o->{lab};
-
-	my $test = make_base ($path, $o->{head});
-
-	for my $i (@{$pos}) {
-		my ($n, $m) = (1 + $i, 17 + $i);
-
-		print $test "P$n.t  = OE1;\n";
-		print $test "P$n.ck = GCK2;\n";
-	}
-
-	for my $i (@{$neg}) {
-		my ($n, $m) = (1 + $i, 17 + $i);
-
-		print $test "P$n.d  = OE1;\n";
-		print $test "P$n.ck = GCK2;\n";
-	}
-
-	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
-	return mcc_read_conf ($cols, $rows, $path, $lab);
-}
-
 #
 # NEG -- Negate OR output
 #
 # Bit at column 1, middle, active-high
 #
 my %conf_neg = (
-	'cb'	=> \&make_sample_neg,	# sample table generator	(req)
+	'cb'	=> \&make_test_sample,	# sample table generator	(req)
 	'name'	=> 'NEG_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
@@ -117,6 +31,10 @@ my %conf_neg = (
 	'head'	=> "$0-base.pld",	# PLD file base part
 	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
+
+	'base'	=> ['[P1..P16].le = GCK2;', '[P1..P16].ar = GCLR;'],
+	'on'	=> ['P{n}.l = !(P{m} & OE1);'],
+	'off'	=> ['P{n}.l =  (P{m} & OE1);'],
 );
 
 #
@@ -129,7 +47,7 @@ my %conf_neg = (
 # y   = x ^ NEG ^ (XOR & !PT1) = x ^ 1 ^ !PT1 = x ^ PT1
 #
 my %conf_xor = (
-	'cb'	=> \&make_sample_xor,	# sample table generator	(req)
+	'cb'	=> \&make_test_sample,	# sample table generator	(req)
 	'name'	=> 'PM1_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
@@ -140,6 +58,10 @@ my %conf_xor = (
 	'head'	=> "$0-base.pld",	# PLD file base part
 	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
+
+	'base'	=> ['[P1..P16].le = GCK2;', '[P1..P16].ar = GCLR;'],
+	'on'	=> ['P{n}.l = (P{m} & OE1) $ GCK1;'],
+	'off'	=> ['P{n}.l = (P{m} & OE1);'],
 );
 
 #
@@ -153,7 +75,7 @@ my %conf_xor = (
 # y   = x ^ NEG ^ (XOR & !PT) ^ (TFF & q) = x ^ q	-- toggle if x
 #
 my %conf_tff = (
-	'cb'	=> \&make_sample_tff,	# sample table generator	(req)
+	'cb'	=> \&make_test_sample,	# sample table generator	(req)
 	'name'	=> 'TFF_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
@@ -164,6 +86,9 @@ my %conf_tff = (
 	'head'	=> "$0-base.pld",	# PLD file base part
 	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
+
+	'on'	=> ['P{n}.t  = OE1;', 'P{n}.ck = GCK2;'],
+	'off'	=> ['P{n}.d  = OE1;', 'P{n}.ck = GCK2;'],
 );
 
 my $o = f1502_load ('db');

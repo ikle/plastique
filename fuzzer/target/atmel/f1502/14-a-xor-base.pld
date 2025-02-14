@@ -24,4 +24,3 @@ Pinnode [601..632] = [F1..F32];			/* MC1..MC32 Feedbacks  */
 
 Property Atmel {XOR_Synthesis on};
 Property Atmel {logic_doubling on};
-
