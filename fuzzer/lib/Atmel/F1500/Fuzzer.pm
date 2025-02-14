@@ -19,6 +19,7 @@ our @EXPORT = qw (
 	make_base
 	make_bit_map
 	pin_opt_sample
+	make_test_sample
 );
 
 use File::Basename	qw (dirname);
@@ -82,6 +83,63 @@ sub pin_opt_sample ($$$) {
 	my $lab  = $o->{lab};
 
 	return undef unless make_opt_sample ($o, $path, $pos, $neg);
+	return mcc_read_conf ($cols, $rows, $path, $lab);
+}
+
+#
+# Generate and compile test sample
+#
+sub make_test_sample ($$$) {
+	my ($o, $pos, $neg) = @_;
+	my $path = $o->{path};
+	my $dev  = $o->{dev};
+	my $cols = $o->{cols};
+	my $rows = $o->{rows};
+	my $lab  = $o->{lab};
+
+	my $test = make_base ($path, $o->{head});
+
+	if (defined $o->{base}) {
+		print $test "\n/* base expressions */\n\n";
+
+		print $test "$_\n" for @{$o->{base}};
+	}
+
+	if (defined $o->{on}) {
+		print $test "\n/* on expressions */\n\n";
+
+		for my $i (@{$pos}) {
+			my ($n, $m) = (1 + $i, 17 + $i);
+
+			for my $line (@{$o->{on}}) {
+				my $s = $line;
+
+				$s =~ s/\{n\}/$n/g;
+				$s =~ s/\{m\}/$m/g;
+
+				print $test "$s\n";
+			}
+		}
+	}
+
+	if (defined $o->{off}) {
+		print $test "\n/* off expressions */\n\n";
+
+		for my $i (@{$neg}) {
+			my ($n, $m) = (1 + $i, 17 + $i);
+
+			for my $line (@{$o->{off}}) {
+				my $s = $line;
+
+				$s =~ s/\{n\}/$n/g;
+				$s =~ s/\{m\}/$m/g;
+
+				print $test "$s\n";
+			}
+		}
+	}
+
+	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
 	return mcc_read_conf ($cols, $rows, $path, $lab);
 }
 
