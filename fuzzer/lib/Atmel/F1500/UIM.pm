@@ -59,11 +59,11 @@ sub uim_make_umap ($) {
 # to the active UIM column number for the given output.
 #
 sub uim_read_jed ($$$) {
-	my ($cols, $rows, $name) = @_;
+	my ($cols, $rows, $path) = @_;
 	my %umap = uim_make_umap ($cols);
 	my %data;
 
-	open my $jed, '<', "$name.jed" or die "E: Cannot open $name.jed\n";
+	open my $jed, '<', "$path.jed" or die "E: Cannot open $path.jed\n";
 
 	for my $line (<$jed>) {
 		if ($line =~ /L\d+\s([01]{5})\s*\*\s*NOTE Mux-(\d+) of block ([A-Z])/) {
@@ -121,10 +121,10 @@ sub uim_report ($;$$) {
 # Parses fitter report and updates UIM table
 #
 sub uim_update ($$$) {
-	my ($table, $name, $jed) = @_;
+	my ($table, $path, $jed) = @_;
 	my $lab;
 
-	open my $fit, '<', "$name.fit" or die "E: Cannot open $name.fit\n";
+	open my $fit, '<', "$path.fit" or die "E: Cannot open $path.fit\n";
 
 	for my $line (<$fit>) {
 		if ($line =~ /: MUX (\d+)\s+Ref\s+\(([^)]+)/) {
