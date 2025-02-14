@@ -31,10 +31,10 @@ our @EXPORT = qw (
 # string of configuration bits
 #
 sub ptc_read_jed ($) {
-	my ($name) = @_;
+	my ($path) = @_;
 	my %data;
 
-	open my $jed, '<', "$name.jed" or die "E: Cannot open $name.jed\n";
+	open my $jed, '<', "$path.jed" or die "E: Cannot open $path.jed\n";
 
 	while (my $line = <$jed>) {
 		my $vec;
@@ -75,10 +75,10 @@ sub ptc_alloc ($) {
 # returns an empty map.
 #
 sub ptc_load ($$) {
-	my ($cols, $name) = @_;
+	my ($cols, $path) = @_;
 	my @raw;
 
-	open my $csv, '<', "$name.csv" or return ptc_alloc ($cols);
+	open my $csv, '<', "$path.csv" or return ptc_alloc ($cols);
 
 	my $line = <$csv>;
 
@@ -86,8 +86,8 @@ sub ptc_load ($$) {
 
 	my @row = split (',', $line);
 
-	die "E: Too few fields in row of $name.csv\n"  if scalar @row < $cols;
-	die "E: Too many fields in row of $name.csv\n" if scalar @row > $cols;
+	die "E: Too few fields in row of $path.csv\n"  if scalar @row < $cols;
+	die "E: Too many fields in row of $path.csv\n" if scalar @row > $cols;
 
 	return \@row;
 }
@@ -96,9 +96,9 @@ sub ptc_load ($$) {
 # Saves the PT map to the specified file.
 #
 sub ptc_save ($$) {
-	my ($row, $name) = @_;
+	my ($row, $path) = @_;
 
-	open my $csv, '>', "$name.csv" or die "E: Cannot write to $name.csv\n";
+	open my $csv, '>', "$path.csv" or die "E: Cannot write to $path.csv\n";
 
 	print $csv join (',', @{$row}) . "\n";
 }
