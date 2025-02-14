@@ -36,7 +36,7 @@ use CVS::Table;
 # to the configuration bit-string in JEDEC file
 #
 sub mcc_read_jed ($) {
-	my ($name) = @_;
+	my ($path) = @_;
 	my %data;
 
 	my %map = (
@@ -54,7 +54,7 @@ sub mcc_read_jed ($) {
 		'S17,S2'  => 11,
 	);
 
-	open my $jed, '<', "$name.jed" or die "E: Cannot open $name.jed\n";
+	open my $jed, '<', "$path.jed" or die "E: Cannot open $path.jed\n";
 
 	for my $line (<$jed>) {
 		if ($line =~ /^L\d+ ([01]+)\*\s*NOTE S(\d+)\s*,\s*S(\d+)\s+of block ([A-Z])/) {
