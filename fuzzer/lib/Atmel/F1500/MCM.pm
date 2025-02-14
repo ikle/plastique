@@ -33,10 +33,10 @@ use CVS::Table;
 # the address in JEDEC file
 #
 sub mcm_read_jed ($) {
-	my ($name) = @_;
+	my ($path) = @_;
 	my %data;
 
-	open my $jed, '<', "$name.jed" or die "E: Cannot open $name.jed\n";
+	open my $jed, '<', "$path.jed" or die "E: Cannot open $path.jed\n";
 
 	for my $line (<$jed>) {
 		if ($line =~ /^L(\d+) [01]+\*\s*NOTE S(\d+)\s*,\s*S(\d+)\s+of block ([A-Z])/) {
