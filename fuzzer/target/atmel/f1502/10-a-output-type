@@ -14,74 +14,6 @@ use Atmel::F1500::Fuzzer;
 use Atmel::F1500::MCC;
 use Atmel::F1502;
 
-sub make_sample_0 ($$$) {
-	my ($o, $pos, $neg) = @_;
-	my $path = $o->{path};
-	my $dev  = $o->{dev};
-	my $cols = $o->{cols};
-	my $rows = $o->{rows};
-	my $lab  = $o->{lab};
-
-	my $test = make_base ($path, $o->{head});
-
-	for my $i (@{$pos}) {
-		my $n = 1 + $i;		# LAB A only at a moment
-
-		print $test "P$n = data;\n";
-	}
-
-	for my $i (@{$neg}) {
-		my $n = 1 + $i;		# LAB A only at a moment
-
-		print $test "P$n.d  = data;\n";
-		print $test "P$n.ck = GCK2;\n";
-	}
-
-	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
-
-	f1502_update ($o->{conf}, $path);
-
-	return mcc_read_conf ($cols, $rows, $path, $lab);
-}
-
-sub make_sample_1 ($$$) {
-	my ($o, $pos, $neg) = @_;
-	my $path = $o->{path};
-	my $dev  = $o->{dev};
-	my $cols = $o->{cols};
-	my $rows = $o->{rows};
-	my $lab  = $o->{lab};
-
-	my $test = make_base ($path, $o->{head});
-
-	print $test "[P17..P32].d  = [F1..F16];\n";
-	print $test "[P17..P32].ck = GCK2;\n";
-
-	for my $i (@{$pos}) {
-		my $n = 1 + $i;		# LAB A only at a moment
-
-		print $test "F$n.d  = data;\n";
-		print $test "F$n.ck = GCK2;\n";
-		print $test "P$n    = data;\n";
-	}
-
-	for my $i (@{$neg}) {
-		my $n = 1 + $i;		# LAB A only at a moment
-
-		print $test "F$n.d  = data;\n";
-		print $test "F$n.ck = GCK2;\n";
-		print $test "P$n    = F$n;\n";
-	}
-
-	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
-
-	f1502_update ($o->{conf}, $path);
-
-	return mcc_read_conf ($cols, $rows, $path, $lab);
-}
-
-my $o = f1502_load ('db');
-
 #
 # OF -- Functional Output (not registered)
 #
@@ -98,7 +30,7 @@ my $o = f1502_load ('db');
 # Bit at column 9, outer	-- same as for test #1
 #
 my %conf_0 = (
-	'cb'	=> \&make_sample_0,	# sample table generator	(req)
+	'cb'	=> \&make_test_sample,	# sample table generator	(req)
 	'name'	=> 'OF_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
@@ -109,10 +41,11 @@ my %conf_0 = (
 	'head'	=> "$0-base.pld",	# PLD file base part
 	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
-	'conf'	=> $o,			# configuration database
-);
 
-my $mcc_0 = make_bit_map (\%conf_0);
+	'base'	=> ['data = OE1 & GCLR;'],
+	'on'	=> ['P{n} = data;'],
+	'off'	=> ['P{n}.d  = data;', 'P{n}.ck = GCK2;'],
+);
 
 #
 # OF -- Functional Output (not registered)
@@ -121,7 +54,7 @@ my $mcc_0 = make_bit_map (\%conf_0);
 # Bit at column 9, outer	-- same as for test #0
 #
 my %conf_1 = (
-	'cb'	=> \&make_sample_1,	# sample table generator	(req)
+	'cb'	=> \&make_test_sample,	# sample table generator	(req)
 	'name'	=> 'OF_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
@@ -132,14 +65,19 @@ my %conf_1 = (
 	'head'	=> "$0-base.pld",	# PLD file base part
 	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
-	'conf'	=> $o,			# configuration database
+
+	'base'	=> ['[P17..P32].d  = [F1..F16];',
+		    '[P17..P32].ck = GCK2;',
+		    'data = OE1 & GCLR;'],
+
+	'on'	=> ['F{n}.d  = data;', 'F{n}.ck = GCK2;', 'P{n}    = data;'],
+	'off'	=> ['F{n}.d  = data;', 'F{n}.ck = GCK2;', 'P{n}    = F{n};'],
 );
 
-my $mcc_1 = make_bit_map (\%conf_1);
+my $o = f1502_load ('db');
 
-#
-# Final computation
-#
+my $mcc_0 = make_bit_map (\%conf_0);
+my $mcc_1 = make_bit_map (\%conf_1);
 
 die "E: Fuzzing results absent\n" unless defined $mcc_0 and defined $mcc_1;
 
@@ -147,6 +85,7 @@ my $mcc = mcc_intersect ($mcc_0, $mcc_1);
 
 mcc_update ($o->{'mcc'}, $mcc) if defined $mcc;
 
+f1502_update ($o, $conf_0{path});
 f1502_report ($o);
 f1502_save   ($o, 'db');
 
