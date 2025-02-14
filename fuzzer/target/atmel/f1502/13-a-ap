@@ -14,41 +14,6 @@ use Atmel::F1500::Fuzzer;
 use Atmel::F1500::MCC;
 use Atmel::F1502;
 
-sub make_sample ($$$) {
-	my ($o, $pos, $neg) = @_;
-	my $path = $o->{path};
-	my $dev  = $o->{dev};
-	my $cols = $o->{cols};
-	my $rows = $o->{rows};
-	my $lab  = $o->{lab};
-
-	my $test = make_base ($path, $o->{head});
-
-	print $test "[P1..P16].l  = [P17..P32];\n";
-	print $test "[P1..P16].le = GCK2;\n";
-	print $test "[P1..P16].ar = GCLR;\n";
-
-	for my $i (@{$pos}) {
-		my $n = 1 + $i;		# LAB A only at a moment
-
-		print $test "P$n.ap = OE1;\n";
-	}
-
-	for my $i (@{$neg}) {
-		my $n = 1 + $i;		# LAB A only at a moment
-
-		print $test "P$n.oe = OE1;\n";
-	}
-
-	return undef unless compile ($path, $dev, '-strategy', 'Optimize', 'off');
-
-	f1502_update ($o->{conf}, $path);
-
-	return mcc_read_conf ($cols, $rows, $path, $lab);
-}
-
-my $o = f1502_load ('db');
-
 #
 # PT Async Preset / !PTOE
 #
@@ -56,7 +21,7 @@ my $o = f1502_load ('db');
 # Bit at column 11, outer,  active-high -- OE = PAP
 #
 my %conf = (
-	'cb'	=> \&make_sample,	# sample table generator	(req)
+	'cb'	=> \&make_test_sample,	# sample table generator	(req)
 	'name'	=> 'PAP_',		# prefix name of source bits	(req)
 	'cols'	=> 12,			# output table column count	(req)
 	'rows'	=> 32,			# output table row count	(req)
@@ -67,13 +32,22 @@ my %conf = (
 	'head'	=> "$0-base.pld",	# PLD file base part
 	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
-	'conf'	=> $o,			# configuration database
+
+	'base'	=> ['[P1..P16].l  = [P17..P32];',
+		    '[P1..P16].le = GCK2;',
+		    '[P1..P16].ar = GCLR;'],
+
+	'on'	=> ['P{n}.ap = OE1;'],
+	'off'	=> ['P{n}.oe = OE1;'],
 );
+
+my $o = f1502_load ('db');
 
 my $mcc = make_bit_map (\%conf);
 
 mcc_update_add ($o->{'mcc'}, $mcc) if defined $mcc;
 
+f1502_update ($o, $conf{path});
 f1502_report ($o);
 f1502_save   ($o, 'db');
 
