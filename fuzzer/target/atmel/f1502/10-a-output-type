@@ -18,16 +18,18 @@ use Atmel::F1502;
 # OF -- Functional Output (not registered)
 #
 # PT4 = 0	-- PT4 inactive
-# PCK = OF
+# PM4 = OF
 # CE  = OF
 #
-# PTCK = PCK ? PT4 : 1 = PCK ? 0 : 1 = !PCK = !OF
+# PTCK = PM4 ? PT4 : 1 = PM4 ? 0 : 1 = !PM4 = !OF
 #
 # ck = CE ? PTCK : GCK2 = OF ? !OF : GCK2 = OF ? 0 : GCK2 = !OF & GCK2
 # ce = CE | PTCK = OF | !OF = 1
 #
-# Bit at column 4, middle
-# Bit at column 9, outer	-- same as for test #1
+# Bit at column 0, middle, active-high	-- PM4 = OF
+# Bit at column 4, middle, active-high	-- ?   = OF
+# Bit at column 7, middle, active-high	-- CE  = OF
+# Bit at column 9, outer,  active-high	-- OF, same as for test #1
 #
 my %conf_0 = (
 	'cb'	=> \&make_test_sample,	# sample table generator	(req)
@@ -50,8 +52,8 @@ my %conf_0 = (
 #
 # OF -- Functional Output (not registered)
 #
-# Bit at column 8, middle
-# Bit at column 9, outer	-- same as for test #0
+# Bit at column 8, middle, active-low	-- BF = !OF
+# Bit at column 9, outer,  active-high	-- OF, same as for test #0
 #
 my %conf_1 = (
 	'cb'	=> \&make_test_sample,	# sample table generator	(req)
