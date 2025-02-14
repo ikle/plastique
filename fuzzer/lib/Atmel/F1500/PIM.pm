@@ -33,10 +33,10 @@ use CVS::Table;
 # address in JEDEC file
 #
 sub pim_read_jed ($) {
-	my ($name) = @_;
+	my ($path) = @_;
 	my %data;
 
-	open my $jed, '<', "$name.jed" or die "E: Cannot open $name.jed\n";
+	open my $jed, '<', "$path.jed" or die "E: Cannot open $path.jed\n";
 
 	while (my $line = <$jed>) {
 		my $address;
