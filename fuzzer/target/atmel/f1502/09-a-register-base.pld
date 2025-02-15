@@ -19,4 +19,3 @@ Pin [44, 43, 1, 2] = [OE1, GCK1, GCLR, GCK2];	/* Input-only pins	*/
 
 Pin [4..9,   11..14, 16..21] = [P1..P16];	/* MC1..MC16  I/O pins	*/
 Pin [41..36, 34..31, 29..24] = [P17..P32];	/* MC17..MC32 I/O pins	*/
-
