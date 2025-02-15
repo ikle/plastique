@@ -16,7 +16,7 @@ use Atmel::F1502;
 #
 # NEG -- Negate OR output
 #
-# Bit at column 1, middle, active-high
+# Bit at column 1, middle, active-high	-- NEG
 #
 my %conf_neg = (
 	'name'	=> 'NEG_',		# prefix name of source bits	(req)
@@ -30,11 +30,11 @@ my %conf_neg = (
 #
 # Do XOR between OR-output and !PT1
 #
-# Bit at column 1, middle, active-high -- NEG
-# Bit at column 3, outer,  active-high -- PM1
+# Bit at column 1, middle, active-high	-- NEG
+# Bit at column 3, outer,  active-high	-- PM1
 #
 # NEG = 1
-# y   = x ^ NEG ^ (XOR & !PT1) = x ^ 1 ^ !PT1 = x ^ PT1
+# y   = x ^ NEG ^ (PM1 & !PT1) = x ^ 1 ^ !PT1 = x ^ PT1
 #
 my %conf_xor = (
 	'name'	=> 'PM1_',		# prefix name of source bits	(req)
@@ -48,12 +48,12 @@ my %conf_xor = (
 #
 # T-Flip-Flop, TFF selects register output as upper input of 2XOR gate
 #
-# Bit at column 3, middle, active-high
+# Bit at column 3, middle, active-high	-- TFF
 #
 # NEG = 0
-# XOR = 0 ?
+# PM1 = 0 ?
 # FF  = 1						-- flip-flop mode
-# y   = x ^ NEG ^ (XOR & !PT) ^ (TFF & q) = x ^ q	-- toggle if x
+# y   = x ^ NEG ^ (PM1 & !PT1) ^ (TFF & q) = x ^ q	-- toggle if x
 #
 my %conf_tff = (
 	'name'	=> 'TFF_',		# prefix name of source bits	(req)
