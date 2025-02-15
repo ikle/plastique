@@ -9,6 +9,7 @@ Location  Saint Petersburg;
 Device    f1502plcc44;
 
 Property Atmel {JTAG off};
+Property Atmel {logic_doubling on};
 
 /*
 Pin [ 3,15,23,35] = Vcc;
