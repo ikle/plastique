@@ -1,6 +1,6 @@
 #!/usr/bin/perl -Ilib
 #
-# Fuzzer script to detect Atmel ATF1502 MC PT Enable configuration
+# Fuzzer script to detect Atmel ATF1502 MC PT Mask-out configuration
 #
 # Copyright (c) 2025 Alexei A. Smekalkine <ikle@ikle.ru>
 #
@@ -16,7 +16,7 @@ use Atmel::F1502;
 #
 # PM1 -- Mask-out PT1 -- disable for OR/NOR, enable for XNOR/XOR
 #
-# Bit at column 3, outer,  active-high
+# Bit at column 3, outer,  active-high	-- PM1
 #
 my %conf_pm1 = (
 	'name'	=> 'PM1_',		# prefix name of source bits	(req)
@@ -29,7 +29,7 @@ my %conf_pm1 = (
 #
 # PM3 -- Mask-out PT3 -- disable for OR, enable for PAR
 #
-# Bit at column 0, outer, active-high
+# Bit at column 0, outer,  active-high	-- PM3
 #
 my %conf_pm3 = (
 	'name'	=> 'PM3_',		# prefix name of source bits	(req)
@@ -42,7 +42,7 @@ my %conf_pm3 = (
 #
 # PM4 -- Mask-out PT4 -- disable for OR, enable for PCK/PCE
 #
-# Bit at column 0, middle, active-high
+# Bit at column 0, middle, active-high	-- PM4
 #
 my %conf_pm4 = (
 	'name'	=> 'PM4_',		# prefix name of source bits	(req)
@@ -55,7 +55,7 @@ my %conf_pm4 = (
 #
 # PM5 -- Mask-out PT5 -- disable for OR, enable for PAR/POE
 #
-# Bit at column 1, outer, active-high
+# Bit at column 1, outer,  active-high	-- PM5
 #
 my %conf_pm5 = (
 	'name'	=> 'PM5_',		# prefix name of source bits	(req)
