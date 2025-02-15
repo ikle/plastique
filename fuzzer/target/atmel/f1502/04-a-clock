@@ -10,129 +10,65 @@
 use strict;
 use warnings;
 
-use Atmel::F1500::Fuzzer;
 use Atmel::F1500::MCC;
 use Atmel::F1502;
 
-sub make_sample ($$$) {
-	my ($o, $pos, $neg) = @_;
-	my $path = $o->{path};
-	my $dev  = $o->{dev};
-	my $cols = $o->{cols};
-	my $rows = $o->{rows};
-	my $lab  = $o->{lab};
-	my $off  = $o->{off};
-	my $on   = $o->{on};
-
-	my $test = make_base ($path, $o->{head});
-
-	# CE used to guarantee what Clock PT always enabled
-
-	for my $i (@{$pos}) {
-		my $n = 1 + $i;		# LAB A only at a moment
-
-		print $test "P$n.ck = $on;\n";
-		print $test "P$n.ce = PTCK;\n" if $on ne 'PTCK';
-	}
-
-	for my $i (@{$neg}) {
-		my $n = 1 + $i;		# LAB A only at a moment
-
-		print $test "P$n.ck = $off;\n";
-		print $test "P$n.ce = PTCK;\n" if $off ne 'PTCK';
-	}
-
-	return undef unless compile ($path, $dev);
-
-	f1502_update ($o->{conf}, $path);
-
-	return mcc_read_conf ($cols, $rows, $path, $lab);
-}
-
-my $o = f1502_load ('db');
-
+#
+# Note, CE used to guarantee what Clock PT always enabled
+#
+# Bit at column 6, middle, active-high	-- CK0
+#
 my %conf_0 = (
-	'cb'	=> \&make_sample,	# sample table generator	(req)
 	'name'	=> 'CK0_',		# prefix name of source bits	(req)
-	'cols'	=> 12,			# output table column count	(req)
-	'rows'	=> 32,			# output table row count	(req)
-	'count'	=> 16,			# number of source bits		(req)
-	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
-
-	'path'	=> 'work/test',		# test files prefix
-	'head'	=> "$0-base.pld",	# PLD file base part
-	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
-	'conf'	=> $o,			# configuration database
 
-	'off'	=> 'GCK2',		# clock for negative bits
-	'on'	=> 'GCK3',		# clock for positive bits
+	'on'	=> ['P{n}.ck = GCK3;', 'P{n}.ce = PTCK;'],
+	'off'	=> ['P{n}.ck = GCK2;', 'P{n}.ce = PTCK;'],
 );
 
+#
+# Bit at column 6, outer,  active-low	-- CK1
+#
 my %conf_1 = (
-	'cb'	=> \&make_sample,	# sample table generator	(req)
 	'name'	=> 'CK1_',		# prefix name of source bits	(req)
-	'cols'	=> 12,			# output table column count	(req)
-	'rows'	=> 32,			# output table row count	(req)
-	'count'	=> 16,			# number of source bits		(req)
-	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
-
-	'path'	=> 'work/test',		# test files prefix
-	'head'	=> "$0-base.pld",	# PLD file base part
-	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
-	'conf'	=> $o,			# configuration database
 
-	'off'	=> 'GCK1',		# clock for negative bits
-	'on'	=> 'GCK3',		# clock for positive bits
+	'on'	=> ['P{n}.ck = GCK3;', 'P{n}.ce = PTCK;'],
+	'off'	=> ['P{n}.ck = GCK1;', 'P{n}.ce = PTCK;'],
 );
-
+#
+# Bit at column 6, outer,  active-high	-- !CK1
+# Bit at column 6, middle, active-high	-- CK0
+#
 my %conf_2 = (
-	'cb'	=> \&make_sample,	# sample table generator	(req)
 	'name'	=> 'CK2_',		# prefix name of source bits	(req)
-	'cols'	=> 12,			# output table column count	(req)
-	'rows'	=> 32,			# output table row count	(req)
-	'count'	=> 16,			# number of source bits		(req)
-	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
-
-	'path'	=> 'work/test',		# test files prefix
-	'head'	=> "$0-base.pld",	# PLD file base part
-	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
-	'conf'	=> $o,			# configuration database
 
-	'off'	=> 'GCK2',		# clock for negative bits
-	'on'	=> 'GCK1',		# clock for positive bits
+	'on'	=> ['P{n}.ck = GCK1;', 'P{n}.ce = PTCK;'],
+	'off'	=> ['P{n}.ck = GCK2;', 'P{n}.ce = PTCK;'],
 );
 
+#
+# Bit at column 7, middle, active-high	-- CE
+#
 # if x.ck == PTCK then x.ce = 1 else x.ce = PTCK  =>  x.ce = PTCK | CE
-
+#
 my %conf_3 = (
-	'cb'	=> \&make_sample,	# sample table generator	(req)
 	'name'	=> 'CE_',		# prefix name of source bits	(req)
-	'cols'	=> 12,			# output table column count	(req)
-	'rows'	=> 32,			# output table row count	(req)
-	'count'	=> 16,			# number of source bits		(req)
-	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
-
-	'path'	=> 'work/test',		# test files prefix
-	'head'	=> "$0-base.pld",	# PLD file base part
-	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
-	'conf'	=> $o,			# configuration database
 
-	'off'	=> 'GCK2',		# clock for negative bits
-	'on'	=> 'PTCK',		# clock for positive bits
+	'on'	=> ['P{n}.ck = PTCK;'],
+	'off'	=> ['P{n}.ck = GCK2;', 'P{n}.ce = PTCK;'],
 );
 
 #
 # Tests:
 #
-# 0. GCK1 -- (CK1, CK0) = (0, x)
-#    GCK3 -- (CK1, CK0) = (1, x)
-#
-# 1. GCK2 -- (CK1, CK0) = (y, 0)
+# 0. GCK2 -- (CK1, CK0) = (y, 0)
 #    GCK3 -- (CK1, CK0) = (y, 1)
+#
+# 1. GCK1 -- (CK1, CK0) = (0, x)
+#    GCK3 -- (CK1, CK0) = (1, x)
 #
 # 2. GCK1 -- (CK1, CK0) = (0, 1)
 #    GCK2 -- (CK1, CK0) = (1, 0)
@@ -163,9 +99,11 @@ my %conf_3 = (
 #    ce = CE | PTCK		-- assume PTCK = 1 if PT Clock not used
 #
 
-my $mcc_0 = make_bit_map (\%conf_0);
-my $mcc_1 = make_bit_map (\%conf_1);
-my $mcc_3 = make_bit_map (\%conf_3);
+my $o = f1502_load ('db');
+
+my $mcc_0 = f1502_mcc_search ($o, \%conf_0);
+my $mcc_1 = f1502_mcc_search ($o, \%conf_1);
+my $mcc_3 = f1502_mcc_search ($o, \%conf_3);
 
 mcc_update ($o->{'mcc'}, $mcc_0) if defined $mcc_0;
 mcc_update ($o->{'mcc'}, $mcc_1) if defined $mcc_1;
