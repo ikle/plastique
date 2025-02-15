@@ -10,7 +10,6 @@
 use strict;
 use warnings;
 
-use Atmel::F1500::Fuzzer;
 use Atmel::F1500::MCC;
 use Atmel::F1502;
 
@@ -21,16 +20,7 @@ use Atmel::F1502;
 # !BF = !OF	-- Bit at column 9, outer
 #
 my %conf = (
-	'cb'	=> \&make_test_sample,	# sample table generator	(req)
 	'name'	=> 'BF_',		# prefix name of source bits	(req)
-	'cols'	=> 12,			# output table column count	(req)
-	'rows'	=> 32,			# output table row count	(req)
-	'count'	=> 16,			# number of source bits		(req)
-	'order'	=> 5,			# ceil (log2 (count - 1)) + 1	(req)
-
-	'path'	=> 'work/test',		# test files prefix
-	'head'	=> "$0-base.pld",	# PLD file base part
-	'dev'	=> 'P1502C44',		# target device for fitter
 	'lab'	=> 'A',			# LAB name to test
 
 	'base'	=> ['[P17..P32].d  = [P17..P32] & [F1..F16];',
@@ -48,11 +38,10 @@ my %conf = (
 
 my $o = f1502_load ('db');
 
-my $mcc = make_bit_map (\%conf);
+my $mcc = f1502_mcc_search ($o, \%conf);
 
 mcc_update_add ($o->{'mcc'}, $mcc) if defined $mcc;
 
-f1502_update ($o, $conf{path});
 f1502_report ($o);
 f1502_save   ($o, 'db');
 
