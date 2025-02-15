@@ -15,6 +15,7 @@ require Exporter;
 
 our @ISA = qw (Exporter);
 
+use Atmel::F1500::Fuzzer;
 use Atmel::F1500::MCC;
 use Atmel::F1500::MCM;
 use Atmel::F1500::PIM;
@@ -33,6 +34,7 @@ our @EXPORT = qw (
 	f1502_save
 	f1502_report
 	f1502_update
+	f1502_mcc_search
 );
 
 sub f1502_alloc () {
@@ -96,6 +98,33 @@ sub f1502_update ($$) {
 	mcm_update ($o->{'mcm'},        mcm_read_jed (       $path));
 
 	uim_update ($o->{'uim'}, $path, uim_read_jed (5, 40, $path));
+}
+
+sub make_mcc_sample ($$$) {
+	my ($o, $pos, $neg) = @_;
+	my $mcc = make_test_sample ($o, $pos, $neg);
+
+	return undef unless defined $mcc;
+
+	f1502_update ($o->{conf}, $o->{path});
+	return $mcc;
+}
+
+sub f1502_mcc_search ($$) {
+	my ($o, $c) = @_;
+
+	$c->{cb}    = \&make_mcc_sample unless defined $o->{cb};
+	$c->{cols}  = 12;
+	$c->{rows}  = 32;
+	$c->{count} = 16 unless defined $o->{count};
+	$c->{order} = 5  unless defined $o->{order};
+
+	$c->{path}  = 'work/test'   unless defined $o->{path};
+	$c->{head}  = "$0-base.pld" unless defined $o->{head};
+	$c->{dev}   = 'P1502C44'    unless defined $o->{dev};
+	$c->{conf}  = $o;
+
+	return make_bit_map ($c);
 }
 
 1;
