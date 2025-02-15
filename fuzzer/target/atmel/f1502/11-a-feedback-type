@@ -16,8 +16,8 @@ use Atmel::F1502;
 #
 # BF -- Burried (Feedback) Functional (not registered)
 #
-# BF		-- Bit at column 8, middle
-# !BF = !OF	-- Bit at column 9, outer
+# Bit at column 8, middle, active-high	-- BF
+# Bit at column 9, outer,  active-low	-- !OF = !BF
 #
 my %conf = (
 	'name'	=> 'BF_',		# prefix name of source bits	(req)
