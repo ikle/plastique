@@ -22,6 +22,7 @@ my %conf_0 = (
 	'name'	=> 'CK0_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'base'	=> ['[P1..P16].d  = [OE1,P18..P32];', 'PTCK = OE1 & P18;'],
 	'on'	=> ['P{n}.ck = GCK3;', 'P{n}.ce = PTCK;'],
 	'off'	=> ['P{n}.ck = GCK2;', 'P{n}.ce = PTCK;'],
 );
@@ -33,6 +34,7 @@ my %conf_1 = (
 	'name'	=> 'CK1_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'base'	=> ['[P1..P16].d  = [OE1,P18..P32];', 'PTCK = OE1 & P18;'],
 	'on'	=> ['P{n}.ck = GCK3;', 'P{n}.ce = PTCK;'],
 	'off'	=> ['P{n}.ck = GCK1;', 'P{n}.ce = PTCK;'],
 );
@@ -44,6 +46,7 @@ my %conf_2 = (
 	'name'	=> 'CK2_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'base'	=> ['[P1..P16].d  = [OE1,P18..P32];', 'PTCK = OE1 & P18;'],
 	'on'	=> ['P{n}.ck = GCK1;', 'P{n}.ce = PTCK;'],
 	'off'	=> ['P{n}.ck = GCK2;', 'P{n}.ce = PTCK;'],
 );
@@ -57,6 +60,7 @@ my %conf_3 = (
 	'name'	=> 'CE_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'base'	=> ['[P1..P16].d  = [OE1,P18..P32];', 'PTCK = OE1 & P18;'],
 	'on'	=> ['P{n}.ck = PTCK;'],
 	'off'	=> ['P{n}.ck = GCK2;', 'P{n}.ce = PTCK;'],
 );
