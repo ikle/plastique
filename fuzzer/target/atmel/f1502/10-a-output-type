@@ -34,6 +34,7 @@ my %conf_0 = (
 	'name'	=> 'OF_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44-fb',
 	'base'	=> ['data = OE1 & GCLR;'],
 	'on'	=> ['P{n} = data;'],
 	'off'	=> ['P{n}.d  = data;', 'P{n}.ck = GCK2;'],
@@ -49,6 +50,7 @@ my %conf_1 = (
 	'name'	=> 'OF_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44-fb',
 	'base'	=> ['[P17..P32].d  = [F1..F16];',
 		    '[P17..P32].ck = GCK2;',
 		    'data = OE1 & GCLR;'],
