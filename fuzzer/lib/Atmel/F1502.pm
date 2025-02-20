@@ -117,12 +117,21 @@ my @C44 = (
 	"Pin [41..36, 34..31, 29..24] = [P17..P32];\t/* MC17..MC32 I/O pins\t*/",
 );
 
+my @C44_fb = (
+	'Property Atmel {JTAG off};',
+	"Pin [44, 43, 1, 2] = [OE1, GCK1, GCLR, GCK2];\t/* Input-only pins\t*/",
+	"Pin [4..9,   11..14, 16..21] = [P1..P16];\t/* MC1..MC16  I/O pins\t*/",
+	"Pin [41..36, 34..31, 29..24] = [P17..P32];\t/* MC17..MC32 I/O pins\t*/",
+	"Pinnode [601..632] = [F1..F32];\t\t\t/* MC1..MC32 Feedbacks\t*/",
+);
+
 sub f1502_pins_expand ($) {
 	my ($c) = @_;
 
 	return unless defined $c->{pins} and ref ($c->{pins}) eq '';
 
-	$c->{pins} = \@C44 if $c->{pins} eq 'C44';
+	$c->{pins} = \@C44	if $c->{pins} eq 'C44';
+	$c->{pins} = \@C44_fb	if $c->{pins} eq 'C44-fb';
 }
 
 sub f1502_mcc_search ($$) {
