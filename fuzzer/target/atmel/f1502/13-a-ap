@@ -23,6 +23,7 @@ my %conf = (
 	'name'	=> 'PAP_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44',
 	'base'	=> ['[P1..P16].l  = [P17..P32];',
 		    '[P1..P16].le = GCK2;',
 		    '[P1..P16].ar = GCLR;'],
