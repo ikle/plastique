@@ -99,6 +99,12 @@ sub make_test_sample ($$$) {
 
 	my $test = make_base ($path, $o->{head});
 
+	if (defined $o->{pins}) {
+		print $test "\n/* pin mapping */\n\n";
+
+		print $test "$_\n" for @{$o->{pins}};
+	}
+
 	if (defined $o->{base}) {
 		print $test "\n/* base expressions */\n\n";
 
