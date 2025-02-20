@@ -8,19 +8,5 @@ Assembly  None;
 Location  Saint Petersburg;
 Device    f1502plcc44;
 
-Property Atmel {JTAG off};
-
-/*
-Pin [ 3,15,23,35] = Vcc;
-Pin [10,22,30,42] = GND;
-*/
-
-Pin [44, 43, 1, 2] = [OE1, GCK1, GCLR, GCK2];	/* Input-only pins	*/
-
-Pin [4..9,   11..14, 16..21] = [P1..P16];	/* MC1..MC16  I/O pins	*/
-Pin [41..36, 34..31, 29..24] = [P17..P32];	/* MC17..MC32 I/O pins	*/
-
-Pinnode [601..632] = [F1..F32];			/* MC1..MC32 Feedbacks  */
-
 Property Atmel {XOR_Synthesis on};
 Property Atmel {logic_doubling on};

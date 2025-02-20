@@ -22,6 +22,7 @@ my %conf_neg = (
 	'name'	=> 'NEG_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44',
 	'base'	=> ['[P1..P16].le = GCK2;', '[P1..P16].ar = GCLR;'],
 	'on'	=> ['P{n}.l = !(P{m} & OE1);'],
 	'off'	=> ['P{n}.l =  (P{m} & OE1);'],
@@ -40,6 +41,7 @@ my %conf_xor = (
 	'name'	=> 'PM1_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44',
 	'base'	=> ['[P1..P16].le = GCK2;', '[P1..P16].ar = GCLR;'],
 	'on'	=> ['P{n}.l = (P{m} & OE1) $ GCK1;'],
 	'off'	=> ['P{n}.l = (P{m} & OE1);'],
@@ -59,6 +61,7 @@ my %conf_tff = (
 	'name'	=> 'TFF_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44',
 	'on'	=> ['P{n}.t  = OE1;', 'P{n}.ck = GCK2;'],
 	'off'	=> ['P{n}.d  = OE1;', 'P{n}.ck = GCK2;'],
 );
