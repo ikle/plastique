@@ -22,6 +22,7 @@ my %conf = (
 	'name'	=> 'FF_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44',
 	'on'	=> ['P{n}.d  = OE1;', 'P{n}.ck = GCK1;'],
 	'off'	=> ['P{n}.l  = OE1;', 'P{n}.le = GCK1;'],
 );
