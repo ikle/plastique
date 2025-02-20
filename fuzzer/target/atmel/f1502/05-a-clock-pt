@@ -29,6 +29,7 @@ my %conf = (
 	'name'	=> 'PM4_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44',
 	'base'	=> ['[P1..P16].d  = [P17..P32];'],
 	'on'	=> ['P{n}.ck = OE1 & P18;'],
 	'off'	=> ['P{n}.ck = GCK2;'],
