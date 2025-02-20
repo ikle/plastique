@@ -25,6 +25,7 @@ my %conf_pm3 = (
 	'name'	=> 'PM3_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44',
 	'base'	=> ['[P1..P16].ck = GCK1;'],
 	'on'	=> ['P{n}.d  = OE1 & P{n} # P{m} & GCLR;', 'P{n}.ar = P19 & P20;'],
 	'off'	=> ['P{n}.d  = OE1 & P{n} # P{m} & GCLR # P19 & GCK2;'],
@@ -42,6 +43,7 @@ my %conf_gar = (
 	'name'	=> 'GAR_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
+	'pins'	=> 'C44',
 	'base'	=> ['[P1..P16].d  = [P17..P32];', '[P1..P16].ck = GCK1;'],
 	'on'	=> ['P{n}.ar = GCLR;'],
 );
