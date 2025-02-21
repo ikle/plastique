@@ -18,6 +18,7 @@ our @ISA = qw (Exporter);
 use Atmel::F1500::Fuzzer;
 use Atmel::F1500::MCC;
 use Atmel::F1500::MCM;
+use Atmel::F1500::OEC;
 use Atmel::F1500::OEM;
 use Atmel::F1500::PIM;
 use Atmel::F1500::PTC;
@@ -46,6 +47,7 @@ sub f1502_alloc () {
 	$o{'mcm'} = ptm_alloc (12, 2);
 	$o{'oem'} = oem_alloc (6);
 
+	$o{'oec'} = oec_alloc (5, 6);
 	$o{'ptc'} = ptc_alloc (96);
 	$o{'mcc'} = mcc_alloc (12, 32);
 	$o{'uim'} = uim_alloc (5, 40);
@@ -62,6 +64,7 @@ sub f1502_load ($) {
 	$o{'mcm'} = mcm_load (12, 2, "$db/atmel/f1502/mcm");
 	$o{'oem'} = oem_load (6,     "$db/atmel/f1502/oem");
 
+	$o{'oec'} = oec_load (5, 6,  "$db/atmel/f1502/oec");
 	$o{'ptc'} = ptc_load (96,    "$db/atmel/f1502/ptc");
 	$o{'mcc'} = mcc_load (12, 32,"$db/atmel/f1502/mcc");
 	$o{'uim'} = uim_load (5, 40, "$db/atmel/f1502/uim");
@@ -77,6 +80,7 @@ sub f1502_save ($$) {
 	mcm_save ($o->{'mcm'}, "$db/atmel/f1502/mcm");
 	oem_save ($o->{'oem'}, "$db/atmel/f1502/oem");
 
+	oec_save ($o->{'oec'}, "$db/atmel/f1502/oec");
 	ptc_save ($o->{'ptc'}, "$db/atmel/f1502/ptc");
 	mcc_save ($o->{'mcc'}, "$db/atmel/f1502/mcc");
 	uim_save ($o->{'uim'}, "$db/atmel/f1502/uim");
@@ -90,6 +94,7 @@ sub f1502_report ($) {
 	mcm_report ($o->{'mcm'}, "# MC Position Mapping\n\n", "\n");
 	oem_report ($o->{'oem'}, "# GOE Position Mapping\n\n", "\n");
 
+	oec_report ($o->{'oec'}, "# GOE Mapping\n\n", "\n");
 	ptc_report ($o->{'ptc'}, "# PT Configuration\n\n", "\n");
 	mcc_report ($o->{'mcc'}, "# MC Configuration\n\n", "\n");
 	uim_report ($o->{'uim'}, "# UIM Mapping\n\n");
