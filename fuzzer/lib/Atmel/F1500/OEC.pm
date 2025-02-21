@@ -155,6 +155,7 @@ sub oec_update ($$$) {
 		if ($line =~ /^MC(\d+)\s+\d+\s+OE(\d+)\s+/) {
 			my ($out, $goe) = ($1, $2);
 
+			next if $out < 1;
 			die "E: Undefined GOE $goe source\n" unless defined $pin{$out};
 
 			my $i = $jed->{$goe};
