@@ -1,0 +1,57 @@
+Name      atf1502-goe;
+Partno    ATF1502;
+Revision  01;
+Date      Feb 2025;
+Designer  ikle;
+Company   None;
+Assembly  None;
+Location  Saint Petersburg;
+Device    f1502plcc44;
+
+Property Atmel {JTAG off};
+Property Atmel {logic_doubling on};
+
+/*
+Pin [ 3,15,23,35] = Vcc;
+Pin [10,22,30,42] = GND;
+*/
+
+Pin [44, 43, 1, 2] = [OE1, GCK1, GCLR, OE2];	/* Input-only pins	*/
+
+Pin [4..9,   11..14, 16..21] = [P1..P16];	/* MC1..MC16  I/O pins	*/
+Pin [41..36, 34..31, 29..24] = [P17..P32];	/* MC17..MC32 I/O pins	*/
+
+Pinnode	[601..632] = [F1..F32];			/* MC1..MC32 Feedbacks	*/
+Pinnode	[301..332] = ![N1..N32];		/* MC1..MC32 Foldbacks	*/
+
+/*
+ * Specify next BOTH via parameters:
+ *
+ * Property Atmel {Global_OE = P2 P3};	-- works here
+ * Property Atmel {OE_node = 616};	-- does not work here
+ *
+ * Works with logic doubling (node/OE-index):
+ *
+ *   601/0  606/3  608/2  610/4  614/5
+ *   617/0  619/1  622/3  624/2  630/5
+ *
+ * Works w/o logic doubling and w/o Global_OE:
+ *
+ *   OE1 and OE2, P23...
+ */
+
+GOE = P19 & !P20;
+
+[P2..P3]    = [P17..P18].io;
+[P2..P3].oe = GOE;
+
+/*
+
+OE5	P23	F30	P7	F14	-
+OE4	P18	P2	F10	-	OE1
+OE3	F6	P15	F22	P31	-
+OE2	P13	F8	P29	F24	-
+OE1	P11	P27	F19	-	OE2
+OE0	F1	P12	F17	P28	-
+
+*/
