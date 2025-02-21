@@ -57,8 +57,8 @@ sub oec_make_umap ($) {
 # Returns a mapping the GOE index to the active GOE column number for
 # the given output.
 #
-sub oec_read_jed ($$$) {
-	my ($cols, $rows, $path) = @_;
+sub oec_read_jed ($$) {
+	my ($cols, $path) = @_;
 	my %umap = oec_make_umap ($cols);
 	my ($i, $addr);
 	my %data;
@@ -68,8 +68,6 @@ sub oec_read_jed ($$$) {
 	while (my $line = <$jed>) {
 		if ($line =~ /^NOTE\s+(\d+)\s+global OE/) {
 			$i = int ($1);
-			die "E: To few GOEs ($i)\n"  if $i < $rows;
-			die "E: To many GOEs ($i)\n" if $i > $rows;
 		}
 
 		next unless defined $i;

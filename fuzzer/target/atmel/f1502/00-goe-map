@@ -39,7 +39,7 @@ sub make_fb_sample ($$$$$) {
 
 	return unless compile ($path, $c->{dev}, @opts);
 
-	oec_update ($o->{oec}, $path, oec_read_jed (5, 6, $path));
+	oec_update ($o->{oec}, $path, oec_read_jed (5, $path));
 	oec_report ($o->{oec}, "# GOE Mapping\n\n", "\n");
 }
 
@@ -57,7 +57,7 @@ sub make_pin_sample ($$$$$) {
 
 	return unless compile ($path, $c->{dev}, @opts);
 
-	oec_update ($o->{oec}, $path, oec_read_jed (5, 6, $path));
+	oec_update ($o->{oec}, $path, oec_read_jed (5, $path));
 	oec_report ($o->{oec}, "# GOE Mapping\n\n", "\n");
 }
 
