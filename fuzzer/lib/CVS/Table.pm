@@ -69,6 +69,7 @@ sub table_load ($$$$) {
 		++$i;
         }
 
+	die "E: Too few rows in $path.csv\n" if $i < $rows;
 	return \@table;
 }
 
