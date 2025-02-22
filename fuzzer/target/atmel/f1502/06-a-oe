@@ -58,6 +58,19 @@ my %conf_2 = (
 );
 
 #
+# Bit at column 11, middle, active-high	-- OE0 (2^0 = 1)
+#
+my %conf_3 = (
+	'name'	=> 'OE0_',		# prefix name of source bits	(req)
+	'lab'	=> 'A',			# LAB name to test
+
+	'pins'	=> 'C44',
+	'base'	=> ['[P1..P16].ck = GCK1;'],
+	'on'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P18 & OE1;'],	# PTOE (7)
+	'off'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P23;'],	# GOE6 (6)
+);
+
+#
 # Proposition:
 #
 # [OE2:OE0] -> [0, GOE1, GOE2, GOE3, GOE4, GOE5, GOE6, PTOE]
@@ -70,10 +83,12 @@ my $o = f1502_load ('db');
 my $mcc_0 = f1502_mcc_search ($o, \%conf_0);
 my $mcc_1 = f1502_mcc_search ($o, \%conf_1);
 my $mcc_2 = f1502_mcc_search ($o, \%conf_2);
+my $mcc_3 = f1502_mcc_search ($o, \%conf_3);
 
 mcc_update ($o->{'mcc'}, $mcc_0) if defined $mcc_0;
 mcc_update ($o->{'mcc'}, $mcc_1) if defined $mcc_1;
 mcc_update ($o->{'mcc'}, $mcc_2) if defined $mcc_2;
+mcc_update ($o->{'mcc'}, $mcc_3) if defined $mcc_3;	# to test PTOE
 
 f1502_report ($o);
 f1502_save   ($o, 'db');
