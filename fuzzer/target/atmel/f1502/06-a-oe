@@ -88,7 +88,7 @@ my %conf_4 = (
 #
 # [OE2:OE0] -> [0, GOE1, GOE2, GOE3, GOE4, GOE5, GOE6, PTOE]
 #
-# PTOE = PM5 ? PT5 : 1
+# PTOE = PM5 ? PT5 : 1	= !(!PT5 & PM5)
 #
 
 my $o = f1502_load ('db');
