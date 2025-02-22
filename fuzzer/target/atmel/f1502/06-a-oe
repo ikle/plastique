@@ -19,7 +19,7 @@ use Atmel::F1502;
 #
 
 #
-# Bit at column 11, middle, active-high	-- OE0
+# Bit at column 11, middle, active-high	-- OE0 (2^0 = 1)
 #
 my %conf_0 = (
 	'name'	=> 'OE0_',		# prefix name of source bits	(req)
@@ -27,12 +27,12 @@ my %conf_0 = (
 
 	'pins'	=> 'C44',
 	'base'	=> ['[P1..P16].ck = GCK1;'],
-	'on'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P29;'],  # GOE3
-	'off'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P27;'],  # GOE2
+	'on'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P29;'],	# GOE3 (3)
+	'off'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P27;'],	# GOE2 (2)
 );
 
 #
-# Bit at column 10, middle, active-high	-- OE1
+# Bit at column 10, middle, active-high	-- OE1 (2^1 = 2)
 #
 my %conf_1 = (
 	'name'	=> 'OE1_',		# prefix name of source bits	(req)
@@ -40,12 +40,12 @@ my %conf_1 = (
 
 	'pins'	=> 'C44',
 	'base'	=> ['[P1..P16].ck = GCK1;'],
-	'on'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P29;'],  # GOE3
-	'off'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P28;'],  # GOE1
+	'on'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P29;'],	# GOE3 (3)
+	'off'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P28;'],	# GOE1 (1)
 );
 
 #
-# Bit at column 11, outer,  active-high	-- OE2
+# Bit at column 11, outer,  active-high	-- OE2 (2^2 = 4)
 #
 my %conf_2 = (
 	'name'	=> 'OE2_',		# prefix name of source bits	(req)
@@ -53,8 +53,8 @@ my %conf_2 = (
 
 	'pins'	=> 'C44',
 	'base'	=> ['[P1..P16].ck = GCK1;'],
-	'on'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P18;'],  # GOE5
-	'off'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P28;'],  # GOE1
+	'on'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P18;'],	# GOE5 (5)
+	'off'	=> ['P{n}.d  = P{m};', 'P{n}.oe = P28;'],	# GOE1 (1)
 );
 
 #
