@@ -16,8 +16,7 @@ use Atmel::F1502;
 #
 # PT Async Preset / !PTOE
 #
-# Bit at column 10, middle, active-high
-# Bit at column 11, outer,  active-high -- OE = PAP
+# Bit at column 11, outer,  active-high -- PAP
 #
 my %conf = (
 	'name'	=> 'PAP_',		# prefix name of source bits	(req)
@@ -28,15 +27,15 @@ my %conf = (
 		    '[P1..P16].le = GCK2;',
 		    '[P1..P16].ar = GCLR;'],
 
-	'on'	=> ['P{n}.ap = OE1;'],
-	'off'	=> ['P{n}.oe = OE1;'],
+	'on'	=> ['P{n}.ap = OE1 & P17;'],
+	'off'	=> ['P{n}.oe = OE1 & P17;'],
 );
 
 my $o = f1502_load ('db');
 
 my $mcc = f1502_mcc_search ($o, \%conf);
 
-mcc_update_add ($o->{'mcc'}, $mcc) if defined $mcc;
+mcc_update ($o->{'mcc'}, $mcc) if defined $mcc;
 
 f1502_report ($o);
 f1502_save   ($o, 'db');
