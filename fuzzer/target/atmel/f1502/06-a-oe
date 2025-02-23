@@ -45,7 +45,7 @@ my %conf_1 = (
 );
 
 #
-# Bit at column 11, outer,  active-high	-- OE2 (2^2 = 4)
+# Bit at column 10, outer,  active-high	-- OE2 (2^2 = 4)
 #
 my %conf_2 = (
 	'name'	=> 'OE2_',		# prefix name of source bits	(req)
