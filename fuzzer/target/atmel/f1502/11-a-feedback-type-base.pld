@@ -7,5 +7,3 @@ Company   None;
 Assembly  None;
 Location  Saint Petersburg;
 Device    f1502plcc44;
-
-Property Atmel {logic_doubling on};

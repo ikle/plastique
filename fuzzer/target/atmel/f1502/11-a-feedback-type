@@ -14,35 +14,25 @@ use Atmel::F1500::MCC;
 use Atmel::F1502;
 
 #
-# BF -- Burried (Feedback) Functional (not registered)
+# FC -- Feedback Combinatorial (not registered)
 #
-# Bit at column 8, middle, active-high	-- BF
-# Bit at column 9, outer,  active-low	-- !OF = !BF
+# Bit at column 4, middle, active-high	-- FC
 #
 my %conf = (
-	'name'	=> 'BF_',		# prefix name of source bits	(req)
+	'name'	=> 'FC_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
 	'pins'	=> 'C44-fb',
-
-	'base'	=> ['[P17..P32].d  = [P17..P32] & [F1..F16];',
-		    '[P17..P32].ck = GCK2;',
-		    'data = OE1 & GCLR;'],
-
-	'on'	=> ['P{n}.d  = data;',
-		    'P{n}.ck = GCK2;',
-		    'F{n}    = data;'],
-
-	'off'	=> ['F{n}.d  = data;',
-		    'F{n}.ck = GCK2;',
-		    'P{n}    = data;'],
+	'base'	=> ['data = OE1 & GCLR;'],
+	'on'	=> ['F{n}    = data;'],
+	'off'	=> ['F{n}.d  = data;', "F{n}.ck = 'b'0;", "F{n}.oe = 'b'1;"],
 );
 
 my $o = f1502_load ('db');
 
 my $mcc = f1502_mcc_search ($o, \%conf);
 
-mcc_update_add ($o->{'mcc'}, $mcc) if defined $mcc;
+mcc_update ($o->{'mcc'}, $mcc) if defined $mcc;
 
 f1502_report ($o);
 f1502_save   ($o, 'db');
