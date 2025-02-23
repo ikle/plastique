@@ -1,0 +1,39 @@
+#!/usr/bin/perl -Ilib
+#
+# Fuzzer script to detect Atmel ATF1502 MC Power Down configuration
+#
+# Copyright (c) 2025 Alexei A. Smekalkine <ikle@ikle.ru>
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+use strict;
+use warnings;
+
+use Atmel::F1500::MCC;
+use Atmel::F1502;
+
+#
+# PD -- Power Down
+#
+# Bit at column 5, middle, active-high	-- PD
+#
+my %conf = (
+	'name'	=> 'PD_',		# prefix name of source bits	(req)
+	'lab'	=> 'A',			# LAB name to test
+
+	'pins'	=> 'C44',
+	'base'	=> ["[P1..P16].d = 'b'0;"],
+	'on'	=> ["P{n}.ck = 'b'0;"],			# PTCK == 0
+	'off'	=> ["P{n}.ck = OE1 & GCK1;"],		# PTCK != 0
+);
+
+my $o = f1502_load ('db');
+
+my $mcc = f1502_mcc_search ($o, \%conf);
+
+mcc_update ($o->{'mcc'}, $mcc) if defined $mcc;
+
+f1502_report ($o);
+f1502_save   ($o, 'db');
+
