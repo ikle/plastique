@@ -168,7 +168,11 @@ sub f1502_mcc_search ($$) {
 	$c->{conf}  = $o;
 
 	f1502_pins_expand ($c);
-	return make_bit_map ($c);
+
+	my $mcc = make_bit_map ($c);
+
+	mcc_report ($mcc, "# MC Configuration\n\n", "\n") if defined $mcc;
+	return $mcc;
 }
 
 1;
