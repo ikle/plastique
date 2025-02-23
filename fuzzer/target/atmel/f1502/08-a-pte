@@ -14,22 +14,38 @@ use Atmel::F1500::MCC;
 use Atmel::F1502;
 
 #
-# PM1 -- Mask-out PT1 -- disable for OR/NOR, enable for XNOR/XOR
+# PM1 -- Mask-out PT1 -- disable for OR, enable for foldback
 #
-# Bit at column 3, outer,  active-high	-- PM1
+# Bit at column 2, outer,  active-high	-- PM1
 #
 my %conf_pm1 = (
 	'name'	=> 'PM1_',		# prefix name of source bits	(req)
 	'lab'	=> 'A',			# LAB name to test
 
-	'on'	=> ['P{n} =   (S1 # S3) $ S2;'],	# PT1 = S3
-	'off'	=> ['P{n} = !((S1 # S3) # S2);'],
+#	'on'	=> ['P{n} =   (S1 # S3) $ S2;'],	# PT1 = S3
+#	'off'	=> ['P{n} = !((S1 # S3) # S2);'],
+);
+
+#
+# PM2 -- Mask-out PT2 -- disable for OR, enable for XNOR/Fast-In
+#
+# Bit at column 3, outer,  active-high	-- PM2, by default = 0
+#
+# NEG = 1
+#
+my %conf_pm2 = (
+	'name'	=> 'PM2_',		# prefix name of source bits	(req)
+	'lab'	=> 'A',			# LAB name to test
+
+	'on'	=> ['P{n} = S2 $ S1;'],			# PT1 = S2, PT2 = S1
+	'off'	=> ['P{n} = !(S2 # S1);'],		# PT1 = S2, PT2 = S1
+#	'off'	=> ['P{n} = !S2;'],			# PT1 = S2
 );
 
 #
 # PM3 -- Mask-out PT3 -- disable for OR, enable for PAR
 #
-# Bit at column 0, outer,  active-high	-- PM3
+# Bit at column 0, outer,  active-high	-- PM3, by default = 1
 #
 my %conf_pm3 = (
 	'name'	=> 'PM3_',		# prefix name of source bits	(req)
@@ -42,7 +58,7 @@ my %conf_pm3 = (
 #
 # PM4 -- Mask-out PT4 -- disable for OR, enable for PCK/PCE
 #
-# Bit at column 0, middle, active-high	-- PM4
+# Bit at column 0, middle, active-high	-- PM4, by default = 1
 #
 my %conf_pm4 = (
 	'name'	=> 'PM4_',		# prefix name of source bits	(req)
@@ -55,7 +71,7 @@ my %conf_pm4 = (
 #
 # PM5 -- Mask-out PT5 -- disable for OR, enable for PAR/POE
 #
-# Bit at column 1, outer,  active-high	-- PM5
+# Bit at column 1, outer,  active-high	-- PM5, by default = 1
 #
 my %conf_pm5 = (
 	'name'	=> 'PM5_',		# prefix name of source bits	(req)
@@ -65,14 +81,26 @@ my %conf_pm5 = (
 	'off'	=> ['P{n} = S1 # S2 # S3 # S4 # S5;'],
 );
 
+#
+# Proposition:
+#
+# OR1 = PM1 ? 0 : PT1
+# OR2 = PM2 ? 0 : PT2
+# OR3 = PM3 ? 0 : PT3
+# OR4 = PM4 ? 0 : PT4
+# OR5 = PM5 ? 0 : PT5
+#
+
 my $o = f1502_load ('db');
 
-my $mcc_pm1 = f1502_mcc_search ($o, \%conf_pm1);
+# my $mcc_pm1 = f1502_mcc_search ($o, \%conf_pm1);
+my $mcc_pm2 = f1502_mcc_search ($o, \%conf_pm2);
 my $mcc_pm3 = f1502_mcc_search ($o, \%conf_pm3);
 my $mcc_pm4 = f1502_mcc_search ($o, \%conf_pm4);
 my $mcc_pm5 = f1502_mcc_search ($o, \%conf_pm5);
 
-mcc_update ($o->{'mcc'}, $mcc_pm1) if defined $mcc_pm1;
+# mcc_update ($o->{'mcc'}, $mcc_pm1) if defined $mcc_pm1;
+mcc_update ($o->{'mcc'}, $mcc_pm2) if defined $mcc_pm2;
 mcc_update ($o->{'mcc'}, $mcc_pm3) if defined $mcc_pm3;
 mcc_update ($o->{'mcc'}, $mcc_pm4) if defined $mcc_pm4;
 mcc_update ($o->{'mcc'}, $mcc_pm5) if defined $mcc_pm5;
