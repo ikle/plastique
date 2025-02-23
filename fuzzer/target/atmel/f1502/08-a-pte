@@ -104,11 +104,14 @@ my %conf_xfa = (
 #
 # Proposition:
 #
-# OR1 = PM1 ? 0 : PT1
+# OR1 = PM1 ? 0 : PT1,	PF1 = PM1 ? PT1 : 1	-- foldback
 # OR2 = PM2 ? 0 : PT2,	PF2 = PM2 ? PT2 : 1	-- XA
-# OR3 = PM3 ? 0 : PT3
-# OR4 = PM4 ? 0 : PT4
-# OR5 = PM5 ? 0 : PT5
+# OR3 = PM3 ? 0 : PT3,	PF3 = PM3 ? PT3 : 0	-- PTAR
+# OR4 = PM4 ? 0 : PT4,	PF4 = PM4 ? PT4 : 1 	-- PTCK, PTCE
+# OR5 = PM5 ? 0 : PT5,	PF5 = PM5 ? PT5 : 1	-- PTOE, PTAP
+# OR6 = Cascade-in
+#
+# OR  = OR1 | OR2 | OR3 | OR4 | OR5 | OR6
 #
 
 my $o = f1502_load ('db');
