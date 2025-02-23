@@ -82,10 +82,30 @@ my %conf_pm5 = (
 );
 
 #
+# XFA -- XOR-gate lower input Function
+#
+# Bit at column 2, middle, active-high	-- XFA
+#
+# PM2 = 0
+# PF2 = PM2 ? PT2 : 1	= 1
+# OR  = 0
+# XA  = XFA ? PF2 : OR	= XFA ? 1 : 0	= XFA
+# CAS = XFA ? OR  : 0	= XFA ? 0 : 0	= 0
+#
+my %conf_xfa = (
+	'name'	=> 'XFA_',		# prefix name of source bits	(req)
+	'lab'	=> 'A',			# LAB name to test
+
+	'base'	=> ['[P1..P16].ck = GCK1;'],
+	'on'	=> ["P{n}.d  = 'b'1;"],			# XA = 1
+	'off'	=> ["P{n}.d  = 'b'0;"],			# XA = 0
+);
+
+#
 # Proposition:
 #
 # OR1 = PM1 ? 0 : PT1
-# OR2 = PM2 ? 0 : PT2
+# OR2 = PM2 ? 0 : PT2,	PF2 = PM2 ? PT2 : 1	-- XA
 # OR3 = PM3 ? 0 : PT3
 # OR4 = PM4 ? 0 : PT4
 # OR5 = PM5 ? 0 : PT5
@@ -98,12 +118,14 @@ my $mcc_pm2 = f1502_mcc_search ($o, \%conf_pm2);
 my $mcc_pm3 = f1502_mcc_search ($o, \%conf_pm3);
 my $mcc_pm4 = f1502_mcc_search ($o, \%conf_pm4);
 my $mcc_pm5 = f1502_mcc_search ($o, \%conf_pm5);
+my $mcc_xfa = f1502_mcc_search ($o, \%conf_xfa);
 
 # mcc_update ($o->{'mcc'}, $mcc_pm1) if defined $mcc_pm1;
 mcc_update ($o->{'mcc'}, $mcc_pm2) if defined $mcc_pm2;
 mcc_update ($o->{'mcc'}, $mcc_pm3) if defined $mcc_pm3;
 mcc_update ($o->{'mcc'}, $mcc_pm4) if defined $mcc_pm4;
 mcc_update ($o->{'mcc'}, $mcc_pm5) if defined $mcc_pm5;
+mcc_update ($o->{'mcc'}, $mcc_xfa) if defined $mcc_xfa;
 
 f1502_report ($o);
 f1502_save   ($o, 'db');
