@@ -20,13 +20,13 @@ use Atmel::F1502;
 # PM4 = OC
 # CE  = OC
 #
-# PTCK = PM4 ? PT4 : 1 = PM4 ? 0 : 1 = !PM4 = !OC
+# PF4 = PM4 ? PT4 : 1 = PM4 ? 0 : 1 = !PM4 = !OC
 #
-# ck = CE ? PTCK : GCK2 = OC ? !OC : GCK2 = OC ? 0 : GCK2 = !OC & GCK2
-# ce = CE | PTCK = OC | !OC = 1
+# ck = CE ? PF4 : GCK2 = OC ? !OC : GCK2 = OC ? 0 : GCK2 = !OC & GCK2
+# ce = CE | PF4 = OC | !OC = 1
 #
 # Bit at column 0, middle, active-high	-- PM4 = OC
-# Bit at column 4, middle, active-high	-- FC  = OC
+# Bit at column 4, middle, active-high	-- FC  = OC	-- useless
 # Bit at column 7, middle, active-high	-- CE  = OC
 # Bit at column 9, outer,  active-high	-- OC, same as for test #1
 #
