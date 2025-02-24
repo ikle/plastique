@@ -22,8 +22,6 @@ Pin [41..36, 34..31, 29..24] = [P17..P32];	/* MC17..MC32 I/O pins	*/
 
 Pinnode [601..632] = [F1..F32];			/* MC1..MC32 Feedbacks  */
 
-Property Atmel {logic_doubling on};
-
 [F9..F16].d  = [P9..P16];
 [F9..F16].ck = GCK2;
 
