@@ -19,7 +19,7 @@ my $o = f1502_load ('db');
 #
 # Bit at column 5, middle, active-high	-- PD = FI
 # Bit at column 8, middle, active-low	-- !FI
-# Bit at column 9, outer,  active-low	-- OF = !FI -- output registered, useless
+# Bit at column 9, outer,  active-low	-- OC = !FI -- output registered, useless
 #
 my %conf = (
 	'cb'	=> \&pin_opt_sample,	# sample table generator	(req)
