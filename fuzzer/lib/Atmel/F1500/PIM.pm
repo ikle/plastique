@@ -62,7 +62,7 @@ sub pim_alloc ($$) {
 }
 
 #
-# Loads UIMposition map from the specified CSV file. If the file cannot be
+# Loads UIM position map from the specified CSV file. If the file cannot be
 # opened, returns an empty map.
 #
 sub pim_load ($$$) {
